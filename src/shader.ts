@@ -21,12 +21,11 @@ export class MacawShader {
 	readonly isImage: boolean;
 	readonly vertexKeys: VertexStringKeys;
 	readonly fragmentKeys: FragmentStringKeys;
-	uniforms!: Uniform; // TODO TEMPFIX !
-	vertexShader!: string; // TODO TEMPFIX !
-	fragmentShader!: string; // TODO TEMPFIX !
+	uniforms: Uniform;
+	vertexShader: string;
+	fragmentShader: string;
 
 	constructor(options: Props) {
-		// TODO Refactor
 		const { baseUniforms, baseVertex, baseFragment, isImage } = options;
 
 		this.vertexKeys = [
@@ -55,13 +54,16 @@ export class MacawShader {
 		this.baseFragment = baseFragment;
 		this.isImage = isImage;
 
+		this.uniforms = {};
+		this.vertexShader = "";
+		this.fragmentShader = "";
+
 		this.create();
 	}
 
 	create(mapEffects: MapEffects = new Map()) {
 		this.uniforms = this.baseUniforms;
 
-		// TODO Refactor
 		const vertex: VertexString = {};
 		const fragment: FragmentString = {};
 
@@ -79,7 +81,6 @@ export class MacawShader {
 			const fragmentString = (this.isImage ? imageFragmentString : composerFragmentString) ?? {};
 			const uniforms = (this.isImage ? imageUniforms : composerUniforms) ?? {};
 
-			// ? Maybe change to hasOwnProperty
 			this.vertexKeys.forEach((key) => {
 				if (key in vertexString) {
 					vertex[key] = [vertex[key], vertexString[key]].join("\n");
@@ -165,7 +166,6 @@ export class MacawShader {
 	}
 
 	private prettifier(string: string) {
-		// TODO WIP
 		return string
 			.replace(/  +/g, "")
 			.replace(/\t/g, "")
