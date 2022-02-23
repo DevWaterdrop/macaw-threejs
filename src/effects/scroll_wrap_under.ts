@@ -1,7 +1,7 @@
-import type { EffectComposerUniforms, FragmentString } from "../effect";
+import type { FragmentString } from "../effect";
 import { Effect } from "../effect";
 
-export class ScrollWrapUnder extends Effect implements EffectComposerUniforms {
+export class ScrollWrapUnder extends Effect {
 	readonly composerFragmentString: FragmentString;
 
 	constructor() {

@@ -1,19 +1,13 @@
 import anime from "animejs";
-import type {
-	EffectImageUniforms,
-	EffectSettings,
-	FragmentString,
-	Uniform,
-	VertexString
-} from "../effect";
-import { Effect, EffectClick } from "../effect";
+import type { FragmentString, Uniform, VertexString } from "../effect";
+import { Effect } from "../effect";
 import type { MacawImage } from "../image";
 
 type Settings = {
 	strength: number;
 };
 
-export class ClickWave extends Effect implements EffectClick, EffectImageUniforms, EffectSettings {
+export class ClickWave extends Effect {
 	readonly imageFragmentString: FragmentString;
 	readonly imageVertexString: VertexString;
 	readonly imageUniforms: Uniform;
