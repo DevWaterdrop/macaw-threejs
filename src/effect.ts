@@ -4,7 +4,7 @@ import type { MacawScene } from "./scene";
 // ! WIP WIP WIP WIP
 
 export abstract class Effect {
-	scene!: MacawScene; // TODO TEMPFIX !
+	scene?: MacawScene;
 	isUsingShaderPass?: boolean;
 	settings?: Record<string, unknown>;
 }
@@ -69,17 +69,17 @@ export type FragmentString = Partial<Record<FragmentStringKeys[number], string>>
 export type VertexString = Partial<Record<VertexStringKeys[number], string>>;
 
 export abstract class EffectImageUniforms extends Effect {
-	readonly imageFragmentString!: FragmentString; // TODO TEMPFIX !
-	readonly imageVertexString!: VertexString; // TODO TEMPFIX !
-	readonly imageUniforms!: Uniform; // TODO TEMPFIX !
+	readonly imageFragmentString?: FragmentString;
+	readonly imageVertexString?: VertexString;
+	readonly imageUniforms?: Uniform;
 
 	abstract setImageUniforms?(img: MacawImage): void | unknown;
 }
 
 export abstract class EffectComposerUniforms extends Effect {
-	readonly composerFragmentString!: FragmentString; // TODO TEMPFIX !
-	readonly composerVertexString!: VertexString; // TODO TEMPFIX !
-	readonly composerUniforms!: Uniform; // TODO TEMPFIX !
+	readonly composerFragmentString?: FragmentString;
+	readonly composerVertexString?: VertexString;
+	readonly composerUniforms?: Uniform;
 
 	abstract setComposerUniforms?(): void | unknown;
 }

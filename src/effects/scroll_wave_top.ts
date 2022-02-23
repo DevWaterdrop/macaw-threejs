@@ -1,10 +1,8 @@
-import type { EffectComposerUniforms, FragmentString, Uniform, VertexString } from "../effect";
+import type { EffectComposerUniforms, FragmentString } from "../effect";
 import { Effect } from "../effect";
 
 export class ScrollWaveTop extends Effect implements EffectComposerUniforms {
 	readonly composerFragmentString: FragmentString;
-	readonly composerVertexString!: VertexString; // TODO TEMPFIX !
-	readonly composerUniforms!: Uniform; // TODO TEMPFIX !
 
 	constructor() {
 		super();
