@@ -1,10 +1,12 @@
 import { terser } from "rollup-plugin-terser";
-import pluginTypescript from "@rollup/plugin-typescript";
+import typescript from "rollup-plugin-typescript2";
 import pluginCommonjs from "@rollup/plugin-commonjs";
 import pluginNodeResolve from "@rollup/plugin-node-resolve";
 import { babel } from "@rollup/plugin-babel";
 import * as path from "path";
 import pkg from "./package.json";
+import dts from "rollup-plugin-dts";
+import del from "rollup-plugin-delete";
 
 //* Settings
 const moduleName = "MacawThreejs";
@@ -21,32 +23,6 @@ const banner = `
 `;
 
 export default [
-	{
-		input: inputFileName,
-		output: [
-			{
-				name: moduleName,
-				file: outputFileName("min.js"),
-				format: "iife",
-				banner,
-				plugins: [terser()]
-			}
-		],
-		plugins: [
-			pluginTypescript(),
-			pluginCommonjs({
-				extensions: [".js", ".ts"]
-			}),
-			babel({
-				babelHelpers: "bundled",
-				configFile: path.resolve(__dirname, ".babelrc.js")
-			}),
-			pluginNodeResolve({
-				browser: true
-			})
-		]
-	},
-
 	//* ES
 	{
 		input: inputFileName,
@@ -59,7 +35,7 @@ export default [
 		],
 		external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})],
 		plugins: [
-			pluginTypescript(),
+			typescript(),
 			pluginCommonjs({
 				extensions: [".js", ".ts"]
 			}),
@@ -69,7 +45,8 @@ export default [
 			}),
 			pluginNodeResolve({
 				browser: false
-			})
+			}),
+			terser({ format: { comments: false } })
 		]
 	},
 
@@ -85,7 +62,7 @@ export default [
 		],
 		external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})],
 		plugins: [
-			pluginTypescript(),
+			typescript(),
 			pluginCommonjs({
 				extensions: [".js", ".ts"]
 			}),
@@ -95,7 +72,21 @@ export default [
 			}),
 			pluginNodeResolve({
 				browser: false
-			})
+			}),
+			terser({ format: { comments: false } })
 		]
+	},
+
+	// Types
+	{
+		input: "build/src/index.d.ts",
+		output: [{ file: "build/index.d.ts", format: "esnext" }],
+		plugins: [dts()]
+	},
+
+	// Delete unused types
+	{
+		input: "empty_input.js",
+		plugins: [del({ targets: "build/src" })]
 	}
 ];
