@@ -23,6 +23,12 @@ const banner = `
 `;
 
 export default [
+	// Delete build folder
+	{
+		input: "empty_input.js",
+		plugins: [del({ targets: "build" })]
+	},
+
 	//* ES
 	{
 		input: inputFileName,
