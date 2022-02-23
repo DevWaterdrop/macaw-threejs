@@ -26,49 +26,39 @@ type MapMeshImages = Map<string, MacawImage>;
 export type MapEffects = Map<string, GeneralEffect>;
 
 export class MacawScene {
-	readonly container: HTMLDivElement;
-	readonly images!: HTMLImageElement[]; // TODO TEMPFIX !
 	manualShouldRender: boolean;
+	observer: IntersectionObserver;
+	settings: SceneSettings;
+	clickRender: number;
+	dimensions: { width: number; height: number };
+	currentScroll: number;
+	shaderEffect: Record<string, unknown>;
+	isShaderPass: number; // TODO Rename
 
-	private time: number;
-	private scrollSpeed: ScrollSpeed;
-	private scrollTimes: number;
-
-	// TODO WIP
 	readonly baseMaterial: THREE.ShaderMaterial;
 	readonly raycaster: THREE.Raycaster;
 	readonly vector2: THREE.Vector2;
 	readonly camera: THREE.PerspectiveCamera;
 	readonly scene: THREE.Scene;
-
-	observer!: IntersectionObserver; // TODO TEMPFIX !
-	settings: SceneSettings;
-	clickRender: number;
-	dimensions: { width: number; height: number };
-	currentScroll: number;
-	// TODO -- end
-
-	// TODO WIP 2
-	readonly renderer: THREE.WebGLRenderer;
-
-	private macawComposer: MacawComposer;
-	// TODO -- end of 2
-
-	// TODO WIP 3
 	readonly mapMeshImages: MapMeshImages;
 	readonly mapEffects: Map<string, GeneralEffect>;
 	readonly imageShader: MacawImageShader;
 	readonly composerShader: MacawComposerShader;
-	shaderEffect: Record<string, unknown>;
-	// TODO rename
-	isShaderPass: number;
-	// TODO -- end of 3
+	readonly renderer: THREE.WebGLRenderer;
+	readonly container: HTMLDivElement;
+	readonly images: HTMLImageElement[];
+
+	private time: number;
+	private scrollSpeed: ScrollSpeed;
+	private scrollTimes: number;
+	private macawComposer: MacawComposer;
 
 	constructor(options: Props) {
 		this.container = options.container;
 		this.settings = options.sceneSettings;
 
 		//* Default settings
+		// scroll
 		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
 		this.scrollTimes = 0;
 		this.time = 0;
@@ -77,29 +67,31 @@ export class MacawScene {
 			target: 0,
 			render: 0
 		};
+		// render
 		this.manualShouldRender = false;
 		this.clickRender = 0;
-		this.vector2 = new THREE.Vector2();
-
-		// TODO
+		this.isShaderPass = 0;
+		// map
+		this.images = [];
 		this.mapEffects = new Map();
-
+		this.mapMeshImages = new Map();
+		// utils
+		this.vector2 = new THREE.Vector2();
+		this.observer = new IntersectionObserver(this.ObserverCallback.bind(this));
+		// image
 		this.imageShader = new MacawImageShader();
-		this.composerShader = new MacawComposerShader();
-
 		this.baseMaterial = new THREE.ShaderMaterial({
 			uniforms: this.imageShader.uniforms,
 			fragmentShader: this.imageShader.fragmentShader,
 			vertexShader: this.imageShader.vertexShader
 		});
+		// composer
+		this.composerShader = new MacawComposerShader();
 		this.shaderEffect = {
 			uniforms: this.composerShader.uniforms,
 			fragmentShader: this.composerShader.fragmentShader,
 			vertexShader: this.composerShader.vertexShader
 		};
-		this.isShaderPass = 0;
-		// TODO -- end
-
 		//* -- end of Default settings
 
 		this.dimensions = {
@@ -148,15 +140,10 @@ export class MacawScene {
 		});
 		//* -- end of Composer
 
-		//* Image zone
-		this.mapMeshImages = new Map();
-		//* -- end of Image zone
-
 		//* Init
 		this.scroll();
 		this.resize();
 
-		this.setupObserver();
 		this.setupScroll();
 		this.setupResize();
 
@@ -245,8 +232,6 @@ export class MacawScene {
 
 		// TODO Change only changed 💁‍♂️
 		this.scene.background = new THREE.Color(sceneSettings.color);
-		// ? Maybe uncomment
-		// this.mapMeshImages.forEach((image) => (image.mesh.visible = true));
 
 		this.settings = sceneSettings;
 		this.manualRender();
@@ -268,16 +253,14 @@ export class MacawScene {
 		window.addEventListener("scroll", this.scroll.bind(this));
 	}
 
-	private setupObserver() {
-		this.observer = new IntersectionObserver((entries) => {
-			entries.forEach((entry) => {
-				// TODO TEMPFIX
-				const img = this.mapMeshImages.get(entry.target.id);
-				if (img) {
-					const { mesh } = img;
-					mesh.visible = entry.isIntersecting;
-				}
-			});
+	private ObserverCallback(entries: IntersectionObserverEntry[]) {
+		entries.forEach((entry) => {
+			const img = this.mapMeshImages.get(entry.target.id);
+
+			if (!img || !img.mesh) {
+				throw new Error(`Unable observe img, img or mesh is undefined`);
+			}
+			img.mesh.visible = entry.isIntersecting;
 		});
 	}
 
@@ -353,7 +336,6 @@ export class MacawScene {
 		// TODO Add to resize, scroll
 
 		if (this.manualShouldRender) return true;
-		// if (this.settings.glitch.enable) return true; // TODO remove
 		return false;
 	}
 
@@ -375,6 +357,7 @@ export class MacawScene {
 	private setUniforms({ image = false, shaderPass = false }) {
 		if (image) {
 			this.mapMeshImages.forEach(({ material }) => {
+				if (!material) throw new Error("Unable to set uniforms, material in undefined");
 				material.uniforms.u_time.value = this.time;
 			});
 		}
