@@ -2,9 +2,16 @@
 	"name": "macaw-threejs",
 	"version": "0.0.1",
 	"description": "",
-	"main": "index.js",
 	"author": "DevWaterdrop",
 	"homepage": "https://github.com/DevWaterdrop/macaw-threejs#readme",
+	"main": "./build/macaw-threejs.min.js",
+	"module": "./build/macaw-threejs.module.js",
+	"exports": {
+		".": {
+			"import": "./build/macaw-threejs.module.js",
+			"require": "./build/macaw-threejs.cjs"
+		}
+	},
 	"keywords": [
 		"macaw",
 		"javascript",
@@ -21,8 +28,8 @@
 	},
 	"scripts": {
 		"build": "rollup -c",
-		"lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
-		"format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+		"lint": "eslint --ignore-path .prettierignore --ext .js,.ts .",
+		"format": "prettier --ignore-path .prettierignore --write \"**/*.+(js|ts|json)\""
 	},
 	"devDependencies": {
 		"@babel/core": "^7.17.5",
