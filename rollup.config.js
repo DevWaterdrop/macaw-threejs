@@ -9,18 +9,24 @@ import dts from "rollup-plugin-dts";
 import del from "rollup-plugin-delete";
 
 //* Settings
-const moduleName = "MacawThreejs";
+const moduleName = "macaw-threejs";
 const inputFileName = "src/index.ts";
 const outputFileName = (type) => `build/macaw-threejs.${type}`;
 const author = pkg.author;
-const banner = `
-  /**
-   * @license
-   * author: ${author}
-   * ${moduleName}.js v${pkg.version}
-   * Released under the ${pkg.license} license.
-   */
+const banner = `/**
+	* @license
+	* author: ${author}
+	* ${moduleName}.js v${pkg.version}
+	* Released under the ${pkg.license} license.
+	*/
+
+//	* ██    ██ ██   ██ ██████   █████  ██ ███    ██ ███████ 
+//	* ██    ██ ██  ██  ██   ██ ██   ██ ██ ████   ██ ██      
+//	* ██    ██ █████   ██████  ███████ ██ ██ ██  ██ █████   
+//	* ██    ██ ██  ██  ██   ██ ██   ██ ██ ██  ██ ██ ██      
+//	*  ██████  ██   ██ ██   ██ ██   ██ ██ ██   ████ ███████
 `;
+const terserOptions = { format: { comments: false, preamble: banner } };
 
 export default [
 	// Delete build folder
@@ -35,8 +41,7 @@ export default [
 		output: [
 			{
 				file: outputFileName("module.js"),
-				format: "es",
-				banner
+				format: "es"
 			}
 		],
 		external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})],
@@ -52,7 +57,7 @@ export default [
 			pluginNodeResolve({
 				browser: false
 			}),
-			terser({ format: { comments: false } })
+			terser(terserOptions)
 		]
 	},
 
@@ -62,8 +67,7 @@ export default [
 		output: [
 			{
 				file: outputFileName("cjs"),
-				format: "cjs",
-				banner
+				format: "cjs"
 			}
 		],
 		external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})],
@@ -79,7 +83,7 @@ export default [
 			pluginNodeResolve({
 				browser: false
 			}),
-			terser({ format: { comments: false } })
+			terser(terserOptions)
 		]
 	},
 
