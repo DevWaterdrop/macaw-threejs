@@ -80,11 +80,7 @@ export class MacawImage {
 
 	async create() {
 		const geometry = new THREE.PlaneBufferGeometry(1, 1, 10, 10);
-		// TODO Use code below (this method cause error: GL ERROR:GL_INVALID_VALUE: glTexSubImage2D: bad dimensions)
-		/*
-			const texture = new THREE.Texture();
-			texture.needsUpdate = true;
-		*/
+
 		this.texture = await new THREE.TextureLoader().loadAsync(this.element.src);
 
 		const material = this.scene.baseMaterial.clone();

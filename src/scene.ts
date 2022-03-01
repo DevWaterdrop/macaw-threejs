@@ -4,6 +4,7 @@ import { MacawComposer } from "./composer";
 import type { GeneralEffect } from "./effect";
 import { MacawImageShader } from "./shaders/imageShader";
 import { MacawComposerShader } from "./shaders/composerShader";
+import { lerp } from "./utils/lerp";
 
 interface Props {
 	container: HTMLDivElement;
@@ -33,7 +34,11 @@ export class MacawScene {
 	dimensions: { width: number; height: number };
 	currentScroll: number;
 	shaderEffect: Record<string, unknown>;
-	isShaderPass: number; // TODO Rename
+
+	countEffectsShaderPass: number;
+	countEffectsImage: number;
+	isShaderPass: boolean;
+	isImage: boolean;
 
 	readonly baseMaterial: THREE.ShaderMaterial;
 	readonly raycaster: THREE.Raycaster;
@@ -70,7 +75,10 @@ export class MacawScene {
 		// render
 		this.manualShouldRender = false;
 		this.clickRender = 0;
-		this.isShaderPass = 0;
+		this.countEffectsShaderPass = 0;
+		this.countEffectsImage = 0;
+		this.isShaderPass = false;
+		this.isImage = false;
 		// map
 		this.images = [];
 		this.mapEffects = new Map();
@@ -162,11 +170,14 @@ export class MacawScene {
 		this.mapEffects.set(key, effect);
 
 		if (effect.composerFragmentString !== undefined) {
-			this.isShaderPass += 1;
+			this.CountEffectsShaderPass = 1;
+
 			this.composerShader.create(this.mapEffects);
 			this.macawComposer.refreshShaderPass(this.composerShader, effect.composerUniforms);
 		}
 		if (effect.imageFragmentString !== undefined) {
+			this.CountEffectsImage = 1;
+
 			this.imageShader.create(this.mapEffects);
 			this.mapMeshImages.forEach((img) => {
 				img.refreshMaterial(effect.imageUniforms);
@@ -185,11 +196,14 @@ export class MacawScene {
 		this.mapEffects.delete(key);
 
 		if (effect.composerFragmentString !== undefined) {
-			this.isShaderPass -= 1;
+			this.CountEffectsShaderPass = -1;
+
 			this.composerShader.create(this.mapEffects);
 			this.macawComposer.refreshShaderPass(this.composerShader);
 		}
 		if (effect.imageFragmentString !== undefined) {
+			this.CountEffectsImage = -1;
+
 			this.imageShader.create(this.mapEffects);
 			this.mapMeshImages.forEach((img) => img.refreshMaterial());
 		}
@@ -199,25 +213,25 @@ export class MacawScene {
 		return true;
 	}
 
-	// TODO make it "readonly"
 	manualRender() {
+		const isShaderPass = this.countEffectsShaderPass > 0;
 		// ? Maybe set uniforms only if at least one effect is enabled from previewSettings 🧐
-		this.setUniforms({ image: true, shaderPass: this.isShaderPass > 0 });
+		this.setUniforms({ image: true, shaderPass: isShaderPass });
 
 		this.mapEffects.forEach((effect) => {
 			if (effect.manualRender) effect.manualRender();
 		});
 
 		// ? Find better performance solution
-		if (this.isShaderPass > 0) {
+		if (this.isShaderPass) {
 			if (this.scrollTimes <= 1) this.renderer.render(this.scene, this.camera); //! Temporarily fix
 			this.macawComposer.composer.render();
 		} else {
 			this.renderer.render(this.scene, this.camera);
 		}
 	}
+
 	cleanUp() {
-		// TODO WIP
 		window.removeEventListener("resize", this.resize.bind(this));
 		window.removeEventListener("scroll", this.scroll.bind(this));
 		this.mapMeshImages.forEach((img) => {
@@ -243,6 +257,16 @@ export class MacawScene {
 		this.setImagesPosition();
 		this.manualRender();
 	}
+
+	set CountEffectsShaderPass(value: number) {
+		this.countEffectsShaderPass += value;
+		this.isShaderPass = this.countEffectsShaderPass > 0;
+	}
+
+	set CountEffectsImage(value: number) {
+		this.countEffectsImage += value;
+		this.isImage = this.countEffectsImage > 0;
+	}
 	//* -- end of SETTER
 
 	private setupResize() {
@@ -264,10 +288,6 @@ export class MacawScene {
 		});
 	}
 
-	private lerp(x: number, y: number, ease: number) {
-		return (1 - ease) * x + ease * y;
-	}
-
 	private scrollSpeedRender() {
 		/* scrollTimes > 1 => removes "first" animation if scroll position > 0,
 				cannot be seen in the generator because all scroll animation by default are disabled */
@@ -277,7 +297,7 @@ export class MacawScene {
 				Math.min(Math.abs(this.currentScroll - this.scrollSpeed.render), 200) / 200;
 
 			this.scrollSpeed.target += (this.scrollSpeed.speed - this.scrollSpeed.target) * 0.2;
-			this.scrollSpeed.render = this.lerp(this.scrollSpeed.render, this.currentScroll, 0.1);
+			this.scrollSpeed.render = lerp(this.scrollSpeed.render, this.currentScroll, 0.1);
 		}
 
 		this.macawComposer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
@@ -332,9 +352,6 @@ export class MacawScene {
 	}
 
 	private shouldRender() {
-		// TODO WIP
-		// TODO Add to resize, scroll
-
 		if (this.manualShouldRender) return true;
 		return false;
 	}
@@ -343,7 +360,7 @@ export class MacawScene {
 	private render() {
 		this.time += 0.5;
 
-		if (this.isShaderPass > 0) {
+		if (this.isShaderPass) {
 			this.scrollSpeedRender();
 		}
 
@@ -356,9 +373,15 @@ export class MacawScene {
 
 	private setUniforms({ image = false, shaderPass = false }) {
 		if (image) {
-			this.mapMeshImages.forEach(({ material }) => {
-				if (!material) throw new Error("Unable to set uniforms, material in undefined");
-				material.uniforms.u_time.value = this.time;
+			this.mapMeshImages.forEach((img) => {
+				if (!img.material) throw new Error("Unable to set uniforms, material in undefined");
+				img.material.uniforms.u_time.value = this.time;
+
+				this.mapEffects.forEach((effect) => {
+					if (effect.setImageUniforms) {
+						effect.setImageUniforms(img);
+					}
+				});
 			});
 		}
 
@@ -367,7 +390,6 @@ export class MacawScene {
 		}
 	}
 
-	//* IMAGES
 	private setImagesPosition(resize = false) {
 		this.mapMeshImages.forEach((img) => {
 			img.setPosition(resize);
