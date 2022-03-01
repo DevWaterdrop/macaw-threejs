@@ -22,6 +22,7 @@ export class MacawComposer {
 
 		this.composer = new EffectComposer(renderer);
 		this.composer.setSize(dimensions.width, dimensions.height);
+
 		this.renderPass = new RenderPass(scene, camera);
 		this.composer.addPass(this.renderPass);
 
@@ -31,16 +32,17 @@ export class MacawComposer {
 	}
 
 	refreshShaderPass(shader: MacawComposerShader, additionalUniforms: Uniform = {}) {
-		// TODO WIP Refactor
 		const { uniforms, vertexShader, fragmentShader } = shader;
 
 		this.composer.removePass(this.shaderPass);
+
 		this.shaderPass = new ShaderPass({
 			uniforms: { ...additionalUniforms, ...uniforms },
 			vertexShader,
 			fragmentShader
 		});
 		this.shaderPass.renderToScreen = true;
+
 		this.composer.addPass(this.shaderPass);
 	}
 }
