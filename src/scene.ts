@@ -281,9 +281,14 @@ export class MacawScene {
 		entries.forEach((entry) => {
 			const img = this.mapMeshImages.get(entry.target.id);
 
-			if (!img || !img.mesh) {
-				throw new Error(`Unable observe img, img or mesh is undefined`);
+			if (!img) {
+				console.warn("Did you add image to the scene via Image(setter)?");
+				return;
 			}
+			if (!img.mesh) {
+				throw new Error(`Unable to observe img, mesh is undefined`);
+			}
+
 			img.mesh.visible = entry.isIntersecting;
 		});
 	}
