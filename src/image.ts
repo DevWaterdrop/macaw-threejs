@@ -116,7 +116,12 @@ export class MacawImage {
 
 		// TODO Maybe split effects on click/scroll/etc...
 		mapEffects.forEach((effect) => {
-			if (effect.click) effect.click(this.element.id, intersects);
+			if (effect.click) {
+				new Promise(() => {
+					// TODO Refactor
+					if (effect.click) effect.click(this.element.id, intersects);
+				});
+			}
 		});
 	}
 }
