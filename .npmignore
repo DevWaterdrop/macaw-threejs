@@ -7,3 +7,4 @@ rollup.config.js
 .prettierignore
 .prettierrc
 empty_input.js
+Makefile
