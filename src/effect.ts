@@ -1,3 +1,4 @@
+import { SCENE_TYPE } from "./constants";
 import type { MacawImage } from "./image";
 import type { MacawScene } from "./scene";
 
@@ -5,6 +6,7 @@ export abstract class Effect {
 	scene?: MacawScene;
 	isUsingShaderPass?: boolean;
 	settings?: Record<string, unknown>;
+	type?: Set<SCENE_TYPE>;
 
 	// Image
 	readonly imageFragmentString?: FragmentString;

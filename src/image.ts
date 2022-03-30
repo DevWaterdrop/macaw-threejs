@@ -48,7 +48,7 @@ export class MacawImage {
 		this.mesh.scale.set(width, height, 1);
 
 		this.mesh.position.y =
-			-this.scene.currentScroll - top + this.scene.dimensions.height / 2 - height / 2;
+			-this.scene.macawScroll.currentScroll - top + this.scene.dimensions.height / 2 - height / 2;
 		this.mesh.position.x = left - this.scene.dimensions.width / 2 + width / 2;
 
 		this.mesh.updateMatrix();

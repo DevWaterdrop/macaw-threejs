@@ -4,18 +4,14 @@ import { MacawComposer } from "./composer";
 import type { GeneralEffect } from "./effect";
 import { MacawImageShader } from "./shaders/imageShader";
 import { MacawComposerShader } from "./shaders/composerShader";
-import { lerp } from "./utils/lerp";
+import { SCENE_TYPE } from "./constants";
+import { MacawScroll } from "./scroll";
 
 interface Props {
 	container: HTMLDivElement;
 	sceneSettings: SceneSettings;
+	type?: SCENE_TYPE;
 }
-
-type ScrollSpeed = {
-	speed: number;
-	target: number;
-	render: number;
-};
 
 export type SceneSettings = {
 	alpha: boolean;
@@ -32,14 +28,15 @@ export class MacawScene {
 	settings: SceneSettings;
 	clickRender: number;
 	dimensions: { width: number; height: number };
-	currentScroll: number;
 	shaderEffect: Record<string, unknown>;
-
 	countEffectsShaderPass: number;
 	countEffectsImage: number;
 	isShaderPass: boolean;
 	isImage: boolean;
+	macawComposer: MacawComposer;
+	macawScroll: MacawScroll;
 
+	readonly type: SCENE_TYPE;
 	readonly baseMaterial: THREE.ShaderMaterial;
 	readonly raycaster: THREE.Raycaster;
 	readonly vector2: THREE.Vector2;
@@ -54,24 +51,17 @@ export class MacawScene {
 	readonly images: HTMLImageElement[];
 
 	private time: number;
-	private scrollSpeed: ScrollSpeed;
-	private scrollTimes: number;
-	private macawComposer: MacawComposer;
 
 	constructor(options: Props) {
-		this.container = options.container;
-		this.settings = options.sceneSettings;
+		const { container, sceneSettings, type } = options;
+		this.container = container;
+		this.settings = sceneSettings;
+		this.type = type || SCENE_TYPE.absolute;
 
 		//* Default settings
-		// scroll
-		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
-		this.scrollTimes = 0;
 		this.time = 0;
-		this.scrollSpeed = {
-			speed: 0,
-			target: 0,
-			render: 0
-		};
+		// scroll
+		this.macawScroll = new MacawScroll({ scene: this });
 		// render
 		this.manualShouldRender = false;
 		this.clickRender = 0;
@@ -122,7 +112,7 @@ export class MacawScene {
 			far
 		);
 		this.camera.position.z = 600;
-		this.camera.position.y = -this.currentScroll;
+		this.camera.position.y = SCENE_TYPE.absolute ? 0 : -this.macawScroll.currentScroll;
 		this.camera.fov =
 			2 * Math.atan(this.dimensions.height / 2 / this.camera.position.z) * (180 / Math.PI);
 
@@ -149,10 +139,10 @@ export class MacawScene {
 		//* -- end of Composer
 
 		//* Init
-		this.scroll();
+		this.macawScroll.scroll();
 		this.resize();
 
-		this.setupScroll();
+		this.macawScroll.setupScroll();
 		this.setupResize();
 
 		this.render();
@@ -161,6 +151,10 @@ export class MacawScene {
 
 	// TODO Same code in removeEffect
 	addEffect(key: string, effect: GeneralEffect) {
+		if (!effect.type?.has(this.type)) {
+			throw new Error(`This effect doesn't support - type: ${this.type}`);
+		}
+
 		if (this.mapEffects.has(key)) {
 			this.removeEffect(key);
 			return false;
@@ -224,7 +218,7 @@ export class MacawScene {
 
 		// ? Find better performance solution
 		if (this.isShaderPass) {
-			if (this.scrollTimes <= 1) this.renderer.render(this.scene, this.camera); //! Temporarily fix
+			if (this.macawScroll.scrollTimes <= 1) this.renderer.render(this.scene, this.camera); //! Temporarily fix
 			this.macawComposer.composer.render();
 		} else {
 			this.renderer.render(this.scene, this.camera);
@@ -233,11 +227,22 @@ export class MacawScene {
 
 	cleanUp() {
 		window.removeEventListener("resize", this.resize.bind(this));
-		window.removeEventListener("scroll", this.scroll.bind(this));
+		this.macawScroll.cleanUp();
 		this.mapMeshImages.forEach((img) => {
 			img.cleanUp();
 		});
 		this.observer.disconnect();
+	}
+
+	shouldRender() {
+		if (this.manualShouldRender) return true;
+		return false;
+	}
+
+	setImagesPosition(resize = false) {
+		this.mapMeshImages.forEach((img) => {
+			img.setPosition(resize);
+		});
 	}
 
 	//* SETTER
@@ -273,10 +278,6 @@ export class MacawScene {
 		window.addEventListener("resize", this.resize.bind(this));
 	}
 
-	private setupScroll() {
-		window.addEventListener("scroll", this.scroll.bind(this));
-	}
-
 	private ObserverCallback(entries: IntersectionObserverEntry[]) {
 		entries.forEach((entry) => {
 			const img = this.mapMeshImages.get(entry.target.id);
@@ -291,45 +292,6 @@ export class MacawScene {
 
 			img.mesh.visible = entry.isIntersecting;
 		});
-	}
-
-	private scrollSpeedRender() {
-		/* scrollTimes > 1 => removes "first" animation if scroll position > 0,
-				cannot be seen in the generator because all scroll animation by default are disabled */
-		if (this.scrollTimes > 1) {
-			// TODO Find better approach (without if)
-			this.scrollSpeed.speed =
-				Math.min(Math.abs(this.currentScroll - this.scrollSpeed.render), 200) / 200;
-
-			this.scrollSpeed.target += (this.scrollSpeed.speed - this.scrollSpeed.target) * 0.2;
-			this.scrollSpeed.render = lerp(this.scrollSpeed.render, this.currentScroll, 0.1);
-		}
-
-		this.macawComposer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
-
-		// TODO WIP
-		// ? Maybe make it 0.01/0.1 for performance
-		this.manualShouldRender = this.clickRender > 0 || this.scrollSpeed.speed > 0.01;
-	}
-
-	private scroll() {
-		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
-
-		this.camera.position.setY(-this.currentScroll);
-
-		this.scrollTimes += 1;
-		//? Currently removed for better performance, it seems there is no need, and there are no bugs
-		//? UPDATE: Bugs on resize, WIP to remove it
-		// TODO performance => need to remove
-		this.setImagesPosition();
-
-		this.mapEffects.forEach((effect) => {
-			if (effect.scroll) effect.scroll();
-		});
-
-		if (!this.shouldRender()) {
-			this.manualRender();
-		}
 	}
 
 	private resize() {
@@ -356,17 +318,12 @@ export class MacawScene {
 		}
 	}
 
-	private shouldRender() {
-		if (this.manualShouldRender) return true;
-		return false;
-	}
-
 	//! Render
 	private render() {
 		this.time += 0.5;
 
 		if (this.isShaderPass) {
-			this.scrollSpeedRender();
+			this.macawScroll.scrollSpeedRender();
 		}
 
 		if (this.shouldRender()) {
@@ -393,11 +350,5 @@ export class MacawScene {
 		if (shaderPass) {
 			this.macawComposer.shaderPass.uniforms.u_time.value = this.time;
 		}
-	}
-
-	private setImagesPosition(resize = false) {
-		this.mapMeshImages.forEach((img) => {
-			img.setPosition(resize);
-		});
 	}
 }

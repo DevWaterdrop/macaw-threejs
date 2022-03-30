@@ -1,4 +1,5 @@
 import anime from "animejs";
+import { SCENE_TYPE } from "../constants";
 import type { FragmentString, Uniform, VertexString } from "../effect";
 import { Effect } from "../effect";
 import type { MacawImage } from "../image";
@@ -18,6 +19,11 @@ export class ClickWave extends Effect {
 
 		// Default Settings
 		this.settings = options;
+
+		const type = new Set<SCENE_TYPE>();
+		type.add(SCENE_TYPE.fixed);
+		type.add(SCENE_TYPE.absolute);
+		this.type = type;
 
 		this.imageFragmentString = {
 			varying: /*glsl*/ `
