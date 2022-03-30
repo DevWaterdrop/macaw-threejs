@@ -1,12 +1,13 @@
 {
 	"name": "macaw-threejs",
-	"version": "0.0.1d",
+	"version": "0.0.1e",
 	"description": "",
 	"author": "DevWaterdrop",
 	"homepage": "https://github.com/DevWaterdrop/macaw-threejs#readme",
 	"main": "./build/macaw-threejs.cjs",
 	"module": "./build/macaw-threejs.module.js",
 	"types": "./build/index.d.ts",
+	"type": "module",
 	"exports": {
 		".": {
 			"import": "./build/macaw-threejs.module.js",

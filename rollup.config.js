@@ -52,7 +52,7 @@ export default [
 			}),
 			babel({
 				babelHelpers: "bundled",
-				configFile: path.resolve(__dirname, ".babelrc.js")
+				configFile: path.resolve(__dirname, ".babelrc.cjs")
 			}),
 			pluginNodeResolve({
 				browser: false
@@ -78,7 +78,7 @@ export default [
 			}),
 			babel({
 				babelHelpers: "bundled",
-				configFile: path.resolve(__dirname, ".babelrc.js")
+				configFile: path.resolve(__dirname, ".babelrc.cjs")
 			}),
 			pluginNodeResolve({
 				browser: false

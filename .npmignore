@@ -2,8 +2,8 @@
 /src/
 tsconfig.json
 rollup.config.js
-.babelrc.js
-.eslintrc.js
+.babelrc.cjs
+.eslintrc.cjs
 .prettierignore
 .prettierrc
 empty_input.js
