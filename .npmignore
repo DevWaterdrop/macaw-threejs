@@ -8,3 +8,4 @@ rollup.config.js
 .prettierrc
 empty_input.js
 Makefile
+/.github/
