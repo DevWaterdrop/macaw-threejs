@@ -6,6 +6,7 @@ import { MacawImageShader } from "./shaders/imageShader";
 import { MacawComposerShader } from "./shaders/composerShader";
 import { SCENE_TYPE } from "./constants";
 import { MacawScroll } from "./scroll";
+import { initCamera, initRaycaster, initRenderer, initScene } from "./inits";
 
 interface Props {
 	container: HTMLDivElement;
@@ -22,12 +23,14 @@ export type SceneSettings = {
 type MapMeshImages = Map<string, MacawImage>;
 export type MapEffects = Map<string, GeneralEffect>;
 
+export type Dimensions = { width: number; height: number };
+
 export class MacawScene {
 	manualShouldRender: boolean;
 	observer: IntersectionObserver;
 	settings: SceneSettings;
 	clickRender: number;
-	dimensions: { width: number; height: number };
+	dimensions: Dimensions;
 	shaderEffect: Record<string, unknown>;
 	countEffectsShaderPass: number;
 	countEffectsImage: number;
@@ -54,6 +57,7 @@ export class MacawScene {
 
 	constructor(options: Props) {
 		const { container, sceneSettings, type } = options;
+
 		this.container = container;
 		this.settings = sceneSettings;
 		this.type = type || SCENE_TYPE.absolute;
@@ -97,36 +101,14 @@ export class MacawScene {
 			height: this.container.offsetHeight
 		};
 
-		this.scene = new THREE.Scene();
-		if (!this.settings.alpha) {
-			this.scene.background = new THREE.Color(this.settings.color);
-		}
-
-		const near = 70;
-		const far = 2000;
-
-		this.camera = new THREE.PerspectiveCamera(
-			70,
-			this.dimensions.width / this.dimensions.height,
-			near,
-			far
-		);
-		this.camera.position.z = 600;
-		this.camera.position.y = SCENE_TYPE.absolute ? 0 : -this.macawScroll.currentScroll;
-		this.camera.fov =
-			2 * Math.atan(this.dimensions.height / 2 / this.camera.position.z) * (180 / Math.PI);
-
-		this.renderer = new THREE.WebGLRenderer({
-			powerPreference: "high-performance",
-			alpha: this.settings.alpha
+		this.scene = initScene({ settings: this.settings });
+		this.camera = initCamera({
+			dimensions: this.dimensions,
+			macawScroll: this.macawScroll,
+			type: this.type
 		});
-
-		this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.settings.maxDPR ?? 1.75));
-		this.container.appendChild(this.renderer.domElement);
-
-		this.raycaster = new THREE.Raycaster();
-		this.raycaster.near = near;
-		this.raycaster.far = far;
+		this.renderer = initRenderer({ container: this.container, settings: this.settings });
+		this.raycaster = initRaycaster();
 
 		//* Composer
 		this.macawComposer = new MacawComposer({
