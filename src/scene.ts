@@ -6,6 +6,8 @@ import { MacawImageShader } from "./shaders/imageShader";
 import { MacawComposerShader } from "./shaders/composerShader";
 import { SCENE_TYPE } from "./constants";
 import { MacawScroll } from "./scroll";
+import { initCamera, initRaycaster, initRenderer, initScene } from "./inits";
+import { MacawResize } from "./resize";
 
 interface Props {
 	container: HTMLDivElement;
@@ -22,12 +24,14 @@ export type SceneSettings = {
 type MapMeshImages = Map<string, MacawImage>;
 export type MapEffects = Map<string, GeneralEffect>;
 
+export type Dimensions = { width: number; height: number };
+
 export class MacawScene {
 	manualShouldRender: boolean;
 	observer: IntersectionObserver;
 	settings: SceneSettings;
 	clickRender: number;
-	dimensions: { width: number; height: number };
+	dimensions: Dimensions;
 	shaderEffect: Record<string, unknown>;
 	countEffectsShaderPass: number;
 	countEffectsImage: number;
@@ -35,6 +39,7 @@ export class MacawScene {
 	isImage: boolean;
 	macawComposer: MacawComposer;
 	macawScroll: MacawScroll;
+	macawResize: MacawResize;
 
 	readonly type: SCENE_TYPE;
 	readonly baseMaterial: THREE.ShaderMaterial;
@@ -54,6 +59,7 @@ export class MacawScene {
 
 	constructor(options: Props) {
 		const { container, sceneSettings, type } = options;
+
 		this.container = container;
 		this.settings = sceneSettings;
 		this.type = type || SCENE_TYPE.absolute;
@@ -90,43 +96,23 @@ export class MacawScene {
 			fragmentShader: this.composerShader.fragmentShader,
 			vertexShader: this.composerShader.vertexShader
 		};
-		//* -- end of Default settings
-
+		//
 		this.dimensions = {
 			width: this.container.offsetWidth,
 			height: this.container.offsetHeight
 		};
+		// resize
+		this.macawResize = new MacawResize({ scene: this });
+		//* -- end of Default settings
 
-		this.scene = new THREE.Scene();
-		if (!this.settings.alpha) {
-			this.scene.background = new THREE.Color(this.settings.color);
-		}
-
-		const near = 70;
-		const far = 2000;
-
-		this.camera = new THREE.PerspectiveCamera(
-			70,
-			this.dimensions.width / this.dimensions.height,
-			near,
-			far
-		);
-		this.camera.position.z = 600;
-		this.camera.position.y = SCENE_TYPE.absolute ? 0 : -this.macawScroll.currentScroll;
-		this.camera.fov =
-			2 * Math.atan(this.dimensions.height / 2 / this.camera.position.z) * (180 / Math.PI);
-
-		this.renderer = new THREE.WebGLRenderer({
-			powerPreference: "high-performance",
-			alpha: this.settings.alpha
+		this.scene = initScene({ settings: this.settings });
+		this.camera = initCamera({
+			dimensions: this.dimensions,
+			macawScroll: this.macawScroll,
+			type: this.type
 		});
-
-		this.renderer.setPixelRatio(Math.min(devicePixelRatio, this.settings.maxDPR ?? 1.75));
-		this.container.appendChild(this.renderer.domElement);
-
-		this.raycaster = new THREE.Raycaster();
-		this.raycaster.near = near;
-		this.raycaster.far = far;
+		this.renderer = initRenderer({ container: this.container, settings: this.settings });
+		this.raycaster = initRaycaster();
 
 		//* Composer
 		this.macawComposer = new MacawComposer({
@@ -140,10 +126,10 @@ export class MacawScene {
 
 		//* Init
 		this.macawScroll.scroll();
-		this.resize();
+		this.macawResize.resize();
 
 		this.macawScroll.setupScroll();
-		this.setupResize();
+		this.macawResize.setup();
 
 		this.render();
 		this.manualRender();
@@ -226,7 +212,7 @@ export class MacawScene {
 	}
 
 	cleanUp() {
-		window.removeEventListener("resize", this.resize.bind(this));
+		this.macawResize.cleanUp();
 		this.macawScroll.cleanUp();
 		this.mapMeshImages.forEach((img) => {
 			img.cleanUp();
@@ -274,10 +260,6 @@ export class MacawScene {
 	}
 	//* -- end of SETTER
 
-	private setupResize() {
-		window.addEventListener("resize", this.resize.bind(this));
-	}
-
 	private ObserverCallback(entries: IntersectionObserverEntry[]) {
 		entries.forEach((entry) => {
 			const img = this.mapMeshImages.get(entry.target.id);
@@ -292,30 +274,6 @@ export class MacawScene {
 
 			img.mesh.visible = entry.isIntersecting;
 		});
-	}
-
-	private resize() {
-		this.dimensions = {
-			width: this.container.offsetWidth,
-			height: this.container.offsetHeight
-		};
-
-		this.camera.aspect = this.dimensions.width / this.dimensions.height;
-		this.camera.fov = 2 * Math.atan(this.dimensions.height / 2 / 600) * (180 / Math.PI);
-		this.camera.updateProjectionMatrix();
-
-		this.renderer.setSize(this.dimensions.width, this.dimensions.height);
-		this.macawComposer.composer.setSize(this.dimensions.width, this.dimensions.height);
-
-		this.setImagesPosition(true);
-
-		this.mapEffects.forEach((effect) => {
-			if (effect.resize) effect.resize();
-		});
-
-		if (!this.shouldRender()) {
-			this.manualRender();
-		}
 	}
 
 	//! Render

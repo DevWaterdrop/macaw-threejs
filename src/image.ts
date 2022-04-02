@@ -57,11 +57,10 @@ export class MacawImage {
 	refreshMaterial(additionalUniforms: Uniform = {}) {
 		if (!this.mesh) throw new Error("Unable to refresh material, mesh is undefined");
 
-		const { imageShader } = this.scene;
 		const shaderMaterial = new THREE.ShaderMaterial({
-			uniforms: { ...additionalUniforms, ...imageShader.uniforms },
-			fragmentShader: imageShader.fragmentShader,
-			vertexShader: imageShader.vertexShader
+			uniforms: { ...additionalUniforms, ...this.scene.imageShader.uniforms },
+			fragmentShader: this.scene.imageShader.fragmentShader,
+			vertexShader: this.scene.imageShader.vertexShader
 		});
 
 		const newMaterial = shaderMaterial.clone();
@@ -106,16 +105,14 @@ export class MacawImage {
 	}
 
 	private clickEvent(event: MouseEvent) {
-		const { vector2, raycaster, camera, scene, mapEffects } = this.scene;
+		this.scene.vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
+		this.scene.vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
 
-		vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
-		vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
-
-		raycaster.setFromCamera(vector2, camera);
-		const intersects = raycaster.intersectObjects(scene.children);
+		this.scene.raycaster.setFromCamera(this.scene.vector2, this.scene.camera);
+		const intersects = this.scene.raycaster.intersectObjects(this.scene.scene.children);
 
 		// TODO Maybe split effects on click/scroll/etc...
-		mapEffects.forEach((effect) => {
+		this.scene.mapEffects.forEach((effect) => {
 			if (effect.click) {
 				new Promise(() => {
 					// TODO Refactor

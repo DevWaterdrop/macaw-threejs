@@ -35,8 +35,6 @@ export class MacawScroll {
 	}
 
 	scrollSpeedRender() {
-		const { clickRender } = this.scene;
-
 		/* scrollTimes > 1 => removes "first" animation if scroll position > 0,
 				cannot be seen in the generator because all scroll animation by default are disabled */
 		if (this.scrollTimes > 1) {
@@ -52,24 +50,22 @@ export class MacawScroll {
 
 		// TODO WIP
 		// ? Maybe make it 0.01/0.1 for performance
-		this.scene.manualShouldRender = clickRender > 0 || this.scrollSpeed.speed > 0.01;
+		this.scene.manualShouldRender = this.scene.clickRender > 0 || this.scrollSpeed.speed > 0.01;
 	}
 
 	scroll() {
-		const { camera, mapEffects, type } = this.scene;
-
 		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
 		this.scrollTimes += 1;
 
-		if (type === SCENE_TYPE.fixed) {
-			camera.position.setY(-this.currentScroll);
+		if (this.scene.type === SCENE_TYPE.fixed) {
+			this.scene.camera.position.setY(-this.currentScroll);
 			//? Currently removed for better performance, it seems there is no need, and there are no bugs
 			//? UPDATE: Bugs on resize, WIP to remove it
 			// TODO performance => need to remove
 			this.scene.setImagesPosition();
 		}
 
-		mapEffects.forEach((effect) => {
+		this.scene.mapEffects.forEach((effect) => {
 			if (effect.scroll) effect.scroll();
 		});
 
