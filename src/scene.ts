@@ -7,6 +7,7 @@ import { MacawComposerShader } from "./shaders/composerShader";
 import { SCENE_TYPE } from "./constants";
 import { MacawScroll } from "./scroll";
 import { initCamera, initRaycaster, initRenderer, initScene } from "./inits";
+import { MacawResize } from "./resize";
 
 interface Props {
 	container: HTMLDivElement;
@@ -38,6 +39,7 @@ export class MacawScene {
 	isImage: boolean;
 	macawComposer: MacawComposer;
 	macawScroll: MacawScroll;
+	macawResize: MacawResize;
 
 	readonly type: SCENE_TYPE;
 	readonly baseMaterial: THREE.ShaderMaterial;
@@ -94,12 +96,14 @@ export class MacawScene {
 			fragmentShader: this.composerShader.fragmentShader,
 			vertexShader: this.composerShader.vertexShader
 		};
-		//* -- end of Default settings
-
+		//
 		this.dimensions = {
 			width: this.container.offsetWidth,
 			height: this.container.offsetHeight
 		};
+		// resize
+		this.macawResize = new MacawResize({ scene: this });
+		//* -- end of Default settings
 
 		this.scene = initScene({ settings: this.settings });
 		this.camera = initCamera({
@@ -122,10 +126,10 @@ export class MacawScene {
 
 		//* Init
 		this.macawScroll.scroll();
-		this.resize();
+		this.macawResize.resize();
 
 		this.macawScroll.setupScroll();
-		this.setupResize();
+		this.macawResize.setup();
 
 		this.render();
 		this.manualRender();
@@ -208,7 +212,7 @@ export class MacawScene {
 	}
 
 	cleanUp() {
-		window.removeEventListener("resize", this.resize.bind(this));
+		this.macawResize.cleanUp();
 		this.macawScroll.cleanUp();
 		this.mapMeshImages.forEach((img) => {
 			img.cleanUp();
@@ -256,10 +260,6 @@ export class MacawScene {
 	}
 	//* -- end of SETTER
 
-	private setupResize() {
-		window.addEventListener("resize", this.resize.bind(this));
-	}
-
 	private ObserverCallback(entries: IntersectionObserverEntry[]) {
 		entries.forEach((entry) => {
 			const img = this.mapMeshImages.get(entry.target.id);
@@ -274,30 +274,6 @@ export class MacawScene {
 
 			img.mesh.visible = entry.isIntersecting;
 		});
-	}
-
-	private resize() {
-		this.dimensions = {
-			width: this.container.offsetWidth,
-			height: this.container.offsetHeight
-		};
-
-		this.camera.aspect = this.dimensions.width / this.dimensions.height;
-		this.camera.fov = 2 * Math.atan(this.dimensions.height / 2 / 600) * (180 / Math.PI);
-		this.camera.updateProjectionMatrix();
-
-		this.renderer.setSize(this.dimensions.width, this.dimensions.height);
-		this.macawComposer.composer.setSize(this.dimensions.width, this.dimensions.height);
-
-		this.setImagesPosition(true);
-
-		this.mapEffects.forEach((effect) => {
-			if (effect.resize) effect.resize();
-		});
-
-		if (!this.shouldRender()) {
-			this.manualRender();
-		}
 	}
 
 	//! Render

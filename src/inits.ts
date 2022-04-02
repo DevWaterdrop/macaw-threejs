@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { SCENE_DEFAULTS, SCENE_TYPE } from "./constants";
 import type { Dimensions, SceneSettings } from "./scene";
 import type { MacawScroll } from "./scroll";
+import { calculateCameraFov } from "./utils/calculate_camera_fov";
 
 interface InitSceneProps {
 	settings: SceneSettings;
@@ -32,7 +33,7 @@ export function initCamera({ dimensions, macawScroll, type }: InitCameraProps) {
 	camera.position.z = SCENE_DEFAULTS.positionZ;
 	camera.position.y = type === SCENE_TYPE.absolute ? 0 : -macawScroll.currentScroll;
 
-	camera.fov = 2 * Math.atan(dimensions.height / 2 / camera.position.z) * (180 / Math.PI);
+	camera.fov = calculateCameraFov(dimensions.height, camera.position.z);
 
 	return camera;
 }
