@@ -4,7 +4,7 @@ It's ready to use library to connect Three.js with your project.<br/>
 Currently, support only images.<br/>
 [Preview link](https://performance-threejs.vercel.app/ 'Link to preview')
 
-## Step by step guide
+## Quick Start
 
 **1. Create a scene.**
 
@@ -19,7 +19,7 @@ const scene = new MacawScene({ container, sceneSettings, type })
 | Key | Value |
 | ------------ | ------------ |
 | `container` | `div` element |
-| `sceneSettings` | optional, **default**: `1.75`;<br/>`alpha` – `boolean`;<br/>`color` – `number` (e.g. `0x000000`);<br/>`maxDPR?` – `number` |
+| `sceneSettings` | <br/>`alpha` – `boolean`;<br/>`color` – `number` (e.g. `0x000000`);<br/>`maxDPR?` – `number`, optional, **default**: `1.75`. |
 | `type?`  | optional, **default**: `absolute`;<br/>**accaptable values**: `fixed`, `absolute`;<br/>(`SCENE_TYPE` enum). |
 
 Container(`HTMLDivElement`) preffered style example (`fixed`/`absolute`):
