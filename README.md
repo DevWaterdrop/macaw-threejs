@@ -19,7 +19,7 @@ const scene = new MacawScene({ container, sceneSettings, type })
 | Key | Value |
 | ------------ | ------------ |
 | `container` | `div` element |
-| `sceneSettings` | <br/>`alpha` – `boolean`;<br/>`color` – `number` (e.g. `0x000000`);<br/>`maxDPR?` – `number`, optional, **default**: `1.75`. |
+| `sceneSettings` | `alpha` – `boolean`;<br/>`color` – `number` (e.g. `0x000000`);<br/>`maxDPR?` – `number`, optional, **default**: `1.75`. |
 | `type?`  | optional, **default**: `absolute`;<br/>**accaptable values**: `fixed`, `absolute`;<br/>(`SCENE_TYPE` enum). |
 
 Container(`HTMLDivElement`) preffered style example (`fixed`/`absolute`):
