@@ -25,12 +25,12 @@ const scene = new MacawScene({ container, sceneSettings, type })
 Container(`HTMLDivElement`) preffered style example (`fixed`/`absolute`):
 ```css
 .container {
-	z-index: -1;
-	position: fixed; // position: absolute;
-	width: 100vw; // width: 100%;
-	height: 100vh; // height: 100%;
-	top: 0;
-	left: 0;
+  z-index: -1;
+  position: fixed; // position: absolute;
+  width: 100vw; // width: 100%;
+  height: 100vh; // height: 100%;
+  top: 0;
+  left: 0;
 }
 ```
 
