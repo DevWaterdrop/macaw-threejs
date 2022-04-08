@@ -1,9 +1,4 @@
-// Effects
-export { ClickWave } from "./effects/click_wave";
-export { ScrollWaveTop } from "./effects/scroll_wave_top";
-export { ScrollWrapUnder } from "./effects/scroll_wrap_under";
-
-// Main
+// Core
 export { MacawComposer } from "./composer";
 export { MacawImage } from "./image";
 export { MacawComposerShader } from "./shaders/composerShader";
