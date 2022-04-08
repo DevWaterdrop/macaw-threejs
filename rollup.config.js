@@ -8,6 +8,9 @@ import pkg from "./package.json";
 import dts from "rollup-plugin-dts";
 import del from "rollup-plugin-delete";
 
+//* --- SETTINGS ---
+const ENABLE_CJS = false;
+
 //* CONSTANTS
 const TYPES = {
 	core: "core",
@@ -74,7 +77,10 @@ const createConfig = ({ input, type, fileName }) => {
 	const es = { input, output: outputES, external, plugins };
 	const cjs = { input, output: outputCJS, external, plugins };
 
-	return [es, cjs];
+	const config = [es];
+	if (ENABLE_CJS) config.push(cjs);
+
+	return config;
 };
 
 // fs/fs-extra doesn't work because of readdir is async :(
