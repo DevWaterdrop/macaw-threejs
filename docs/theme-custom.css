@@ -1,0 +1,9 @@
+:root {
+	--theme-color: #85beff;
+
+	/* || Table */
+	--table-head-border-width: 1px;
+	--table-head-border-color: hsla(201, 18%, 35%, 0.65);
+	--table-body-border-width: 1px;
+	--table-body-border-color: hsla(201, 18%, 35%, 0.65);
+}

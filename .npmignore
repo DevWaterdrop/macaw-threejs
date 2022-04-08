@@ -9,3 +9,4 @@ rollup.config.js
 empty_input.js
 Makefile
 /.github/
+/docs/
