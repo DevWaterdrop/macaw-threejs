@@ -47,9 +47,15 @@ export class MacawImage {
 
 		this.mesh.scale.set(width, height, 1);
 
-		this.mesh.position.y =
-			-this.scene.macawScroll.currentScroll - top + this.scene.dimensions.height / 2 - height / 2;
-		this.mesh.position.x = left - this.scene.dimensions.width / 2 + width / 2;
+		const { macawOBJ, coreOBJ } = this.scene;
+
+		this.mesh.position.y = this.calculateMeshPositionY(
+			macawOBJ.scroll.currentScroll,
+			coreOBJ.dimensions.height,
+			top,
+			height
+		);
+		this.mesh.position.x = this.calculateMeshPositionX(left, width, coreOBJ.dimensions.width);
 
 		this.mesh.updateMatrix();
 	}
@@ -58,9 +64,9 @@ export class MacawImage {
 		if (!this.mesh) throw new Error("Unable to refresh material, mesh is undefined");
 
 		const shaderMaterial = new THREE.ShaderMaterial({
-			uniforms: { ...additionalUniforms, ...this.scene.imageShader.uniforms },
-			fragmentShader: this.scene.imageShader.fragmentShader,
-			vertexShader: this.scene.imageShader.vertexShader
+			uniforms: { ...additionalUniforms, ...this.scene.imageOBJ.shader.uniforms },
+			fragmentShader: this.scene.imageOBJ.shader.fragmentShader,
+			vertexShader: this.scene.imageOBJ.shader.vertexShader
 		});
 
 		const newMaterial = shaderMaterial.clone();
@@ -77,12 +83,23 @@ export class MacawImage {
 		this.mesh.material = newMaterial;
 	}
 
+	setUniforms() {
+		if (!this.material) throw new Error("Unable to set uniforms, material in undefined");
+		this.material.uniforms.u_time.value = this.scene.time;
+
+		this.scene.storageOBJ.mapEffects.forEach((effect) => {
+			if (effect.setImageUniforms) {
+				effect.setImageUniforms(this);
+			}
+		});
+	}
+
 	async create() {
 		const geometry = new THREE.PlaneBufferGeometry(1, 1, 10, 10);
 
 		this.texture = await new THREE.TextureLoader().loadAsync(this.element.src);
 
-		const material = this.scene.baseMaterial.clone();
+		const material = this.scene.imageOBJ.baseMaterial.clone();
 		material.uniforms.u_image.value = this.texture;
 
 		const mesh = new THREE.Mesh(geometry, material);
@@ -100,19 +117,24 @@ export class MacawImage {
 
 		this.setPosition();
 
-		this.scene.observer.observe(this.element);
-		this.scene.scene.add(mesh);
+		this.scene.macawOBJ.observer.instance.observe(this.element);
+		this.scene.coreOBJ.scene.add(mesh);
 	}
 
 	private clickEvent(event: MouseEvent) {
-		this.scene.vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
-		this.scene.vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
+		this.scene.utilsOBJ.vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
+		this.scene.utilsOBJ.vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
 
-		this.scene.raycaster.setFromCamera(this.scene.vector2, this.scene.camera);
-		const intersects = this.scene.raycaster.intersectObjects(this.scene.scene.children);
+		this.scene.coreOBJ.raycaster.setFromCamera(
+			this.scene.utilsOBJ.vector2,
+			this.scene.coreOBJ.camera
+		);
+		const intersects = this.scene.coreOBJ.raycaster.intersectObjects(
+			this.scene.coreOBJ.scene.children
+		);
 
 		// TODO Maybe split effects on click/scroll/etc...
-		this.scene.mapEffects.forEach((effect) => {
+		this.scene.storageOBJ.mapEffects.forEach((effect) => {
 			if (effect.click) {
 				new Promise(() => {
 					// TODO Refactor
@@ -120,5 +142,24 @@ export class MacawImage {
 				});
 			}
 		});
+	}
+
+	private calculateMeshPositionY(
+		currentScroll: number,
+		dimensionHeight: number,
+		elementTop: number,
+		elementHeight: number
+	) {
+		const calculation = -currentScroll - elementTop + dimensionHeight / 2 - elementHeight / 2;
+		return calculation;
+	}
+
+	private calculateMeshPositionX(
+		elementLeft: number,
+		elementWidth: number,
+		dimensionWidth: number
+	) {
+		const calculation = elementLeft - dimensionWidth / 2 + elementWidth / 2;
+		return calculation;
 	}
 }

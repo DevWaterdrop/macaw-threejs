@@ -16,27 +16,31 @@ export class MacawResize {
 	}
 
 	resize() {
-		this.scene.dimensions = {
-			width: this.scene.container.offsetWidth,
-			height: this.scene.container.offsetHeight
+		this.scene.coreOBJ.dimensions = {
+			width: this.scene.coreOBJ.container.offsetWidth,
+			height: this.scene.coreOBJ.container.offsetHeight
 		};
 
-		this.scene.camera.aspect = this.scene.dimensions.width / this.scene.dimensions.height;
-		this.scene.camera.fov = calculateCameraFov(
-			this.scene.dimensions.height,
+		this.scene.coreOBJ.camera.aspect =
+			this.scene.coreOBJ.dimensions.width / this.scene.coreOBJ.dimensions.height;
+		this.scene.coreOBJ.camera.fov = calculateCameraFov(
+			this.scene.coreOBJ.dimensions.height,
 			SCENE_DEFAULTS.positionZ
 		);
-		this.scene.camera.updateProjectionMatrix();
+		this.scene.coreOBJ.camera.updateProjectionMatrix();
 
-		this.scene.renderer.setSize(this.scene.dimensions.width, this.scene.dimensions.height);
-		this.scene.macawComposer.composer.setSize(
-			this.scene.dimensions.width,
-			this.scene.dimensions.height
+		this.scene.coreOBJ.renderer.setSize(
+			this.scene.coreOBJ.dimensions.width,
+			this.scene.coreOBJ.dimensions.height
+		);
+		this.scene.macawOBJ.composer.instance.setSize(
+			this.scene.coreOBJ.dimensions.width,
+			this.scene.coreOBJ.dimensions.height
 		);
 
-		this.scene.setImagesPosition(true);
+		this.scene.setImagesPosition({ resize: true });
 
-		this.scene.mapEffects.forEach((effect) => {
+		this.scene.storageOBJ.mapEffects.forEach((effect) => {
 			if (effect.resize) effect.resize();
 		});
 

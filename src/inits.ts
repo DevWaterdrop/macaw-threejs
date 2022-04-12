@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { SCENE_DEFAULTS, SCENE_TYPE } from "./constants";
-import type { Dimensions, SceneSettings } from "./scene";
+import type { ComposerOBJ, Dimensions, ImageOBJ, SceneSettings } from "./scene";
 import type { MacawScroll } from "./scroll";
+import { MacawComposerShader } from "./shaders/composerShader";
+import { MacawImageShader } from "./shaders/imageShader";
 import { calculateCameraFov } from "./utils/calculate_camera_fov";
 
 interface InitSceneProps {
@@ -40,7 +42,7 @@ export function initCamera({ dimensions, macawScroll, type }: InitCameraProps) {
 
 interface InitRendererProps {
 	container: HTMLDivElement;
-	settings: SceneSettings;
+	settings: Required<SceneSettings>;
 }
 export function initRenderer({ container, settings }: InitRendererProps) {
 	const renderer = new THREE.WebGLRenderer({
@@ -48,7 +50,7 @@ export function initRenderer({ container, settings }: InitRendererProps) {
 		alpha: settings.alpha
 	});
 
-	renderer.setPixelRatio(Math.min(devicePixelRatio, settings.maxDPR ?? 1.75));
+	renderer.setPixelRatio(Math.min(devicePixelRatio, settings.maxDPR));
 	container.appendChild(renderer.domElement);
 
 	return renderer;
@@ -61,4 +63,26 @@ export function initRaycaster() {
 	raycaster.far = SCENE_DEFAULTS.far;
 
 	return raycaster;
+}
+
+export function initImageOBJ(): ImageOBJ {
+	const shader = new MacawImageShader();
+	const baseMaterial = new THREE.ShaderMaterial({
+		uniforms: shader.uniforms,
+		fragmentShader: shader.fragmentShader,
+		vertexShader: shader.vertexShader
+	});
+
+	return { shader, baseMaterial };
+}
+
+export function initComposerOBJ(): ComposerOBJ {
+	const shader = new MacawComposerShader();
+	const shaderEffect = {
+		uniforms: shader.uniforms,
+		fragmentShader: shader.fragmentShader,
+		vertexShader: shader.vertexShader
+	};
+
+	return { shader, shaderEffect };
 }

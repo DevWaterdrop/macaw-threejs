@@ -46,32 +46,38 @@ export class MacawScroll {
 			this.scrollSpeed.render = lerp(this.scrollSpeed.render, this.currentScroll, 0.1);
 		}
 
-		this.scene.macawComposer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
+		this.scene.macawOBJ.composer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
 
 		// TODO WIP
 		// ? Maybe make it 0.01/0.1 for performance
-		this.scene.manualShouldRender = this.scene.clickRender > 0 || this.scrollSpeed.speed > 0.01;
+		this.scene.renderOBJ.isManualShouldRender =
+			this.scene.renderOBJ.countClickRender > 0 || this.scrollSpeed.speed > 0.01;
 	}
 
 	scroll() {
 		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
 		this.scrollTimes += 1;
 
-		if (this.scene.type === SCENE_TYPE.fixed) {
-			this.scene.camera.position.setY(-this.currentScroll);
+		if (this.scene.settings.type === SCENE_TYPE.fixed) {
+			this.scene.coreOBJ.camera.position.setY(-this.currentScroll);
 			//? Currently removed for better performance, it seems there is no need, and there are no bugs
 			//? UPDATE: Bugs on resize, WIP to remove it
 			// TODO performance => need to remove
 			this.scene.setImagesPosition();
 		}
 
-		this.scene.mapEffects.forEach((effect) => {
+		this.scene.storageOBJ.mapEffects.forEach((effect) => {
 			if (effect.scroll) effect.scroll();
 		});
 
-		if (!this.scene.shouldRender()) {
+		if (!this.scene.shouldRender() && this.scene.settings.type === SCENE_TYPE.fixed) {
 			this.scene.manualRender();
 		}
+
+		// TODO Remove?
+		// if (!this.scene.shouldRender()) {
+		// 	this.scene.manualRender();
+		// }
 	}
 
 	setupScroll() {
