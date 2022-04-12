@@ -4,11 +4,11 @@
 	"description": "",
 	"author": "DevWaterdrop",
 	"homepage": "https://github.com/DevWaterdrop/macaw-threejs#readme",
-	"main": "./build/index.js",
+	"main": "./build/src/index.js",
 	"type": "module",
 	"exports": {
 		".": {
-			"import": "./build/index.js"
+			"import": "./build/src/index.js"
 		}
 	},
 	"keywords": [
