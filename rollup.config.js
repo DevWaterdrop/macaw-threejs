@@ -17,9 +17,7 @@ const core = {
 	input: "src/index.ts",
 	output: {
 		dir: "build",
-		format: "es",
-		preserveModules: true,
-		preserveModulesRoot: "src"
+		format: "es"
 	},
 	plugins: [
 		typescript(),
