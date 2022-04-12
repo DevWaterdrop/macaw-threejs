@@ -2,7 +2,6 @@
 /src/
 tsconfig.json
 rollup.config.js
-.babelrc.cjs
 .eslintrc.cjs
 .prettierignore
 .prettierrc
