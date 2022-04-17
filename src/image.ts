@@ -39,7 +39,6 @@ export class MacawImage {
 
 		if (resize) this.mesh.visible = true;
 
-		// ? Maybe remove Math.min
 		this.material.uniforms.u_scale.value = [
 			Math.min((width * this.element.naturalHeight) / (height * this.element.naturalWidth), 1),
 			1
@@ -134,7 +133,6 @@ export class MacawImage {
 			this.scene.coreOBJ.scene.children
 		);
 
-		// TODO Maybe split effects on click/scroll/etc...
 		this.scene.storageOBJ.mapEffects.forEach((effect) => {
 			new Promise(() => {
 				if (effect.click) effect.click(this.element.id, intersects);
