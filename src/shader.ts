@@ -15,15 +15,16 @@ interface Props {
 }
 
 export class MacawShader {
+	uniforms: Uniform;
+	vertexShader: string;
+	fragmentShader: string;
+
 	readonly baseUniforms: Uniform;
 	readonly baseVertex: VertexString;
 	readonly baseFragment: FragmentString;
 	readonly isImage: boolean;
 	readonly vertexKeys: VertexStringKeys;
 	readonly fragmentKeys: FragmentStringKeys;
-	uniforms: Uniform;
-	vertexShader: string;
-	fragmentShader: string;
 
 	constructor(options: Props) {
 		const { baseUniforms, baseVertex, baseFragment, isImage } = options;

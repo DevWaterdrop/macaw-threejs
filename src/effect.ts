@@ -8,21 +8,21 @@ export abstract class Effect {
 	settings?: Record<string, unknown>;
 	type?: Set<SCENE_TYPE>;
 
-	// Image
+	//* Image
 	readonly imageFragmentString?: FragmentString;
 	readonly imageVertexString?: VertexString;
 	readonly imageUniforms?: Uniform;
 
 	setImageUniforms?(img: MacawImage): void | unknown;
-	// -- end of Image
+	//* -- end of Image
 
-	// Composer
+	//* Composer
 	readonly composerFragmentString?: FragmentString;
 	readonly composerVertexString?: VertexString;
 	readonly composerUniforms?: Uniform;
 
 	setComposerUniforms?(): void | unknown;
-	// -- end of Composer
+	//* -- end of Composer
 
 	setSettings?(...args: unknown[]): void | unknown;
 

@@ -39,7 +39,6 @@ export class MacawImage {
 
 		if (resize) this.mesh.visible = true;
 
-		// ? Maybe remove Math.min
 		this.material.uniforms.u_scale.value = [
 			Math.min((width * this.element.naturalHeight) / (height * this.element.naturalWidth), 1),
 			1
@@ -110,12 +109,13 @@ export class MacawImage {
 
 		mesh.matrixAutoUpdate = false;
 
-		this.element.id = this.element.id ? this.element.id : `threejs_img_${this.id}`;
+		this.element.id = this.element.id || `threejs_img_${this.id}`;
 
 		this.mesh = mesh;
 		this.material = material;
 
-		this.setPosition();
+		// ? Currently removed, may cause bugs. Investigations are underway!
+		// this.setPosition();
 
 		this.scene.macawOBJ.observer.instance.observe(this.element);
 		this.scene.coreOBJ.scene.add(mesh);
@@ -133,14 +133,10 @@ export class MacawImage {
 			this.scene.coreOBJ.scene.children
 		);
 
-		// TODO Maybe split effects on click/scroll/etc...
 		this.scene.storageOBJ.mapEffects.forEach((effect) => {
-			if (effect.click) {
-				new Promise(() => {
-					// TODO Refactor
-					if (effect.click) effect.click(this.element.id, intersects);
-				});
-			}
+			new Promise(() => {
+				if (effect.click) effect.click(this.element.id, intersects);
+			});
 		});
 	}
 
