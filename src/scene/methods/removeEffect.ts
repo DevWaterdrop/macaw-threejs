@@ -25,7 +25,10 @@ export function removeEffect(this: MacawScene, props: RemoveEffectProps) {
 		this.storageOBJ.mapMeshImages.forEach((img) => img.refreshMaterial());
 	}
 
-	this.manualRender(); // TODO maybe remove
+	// ? Secure, maybe redundant render.
+	if (!this.shouldRender()) {
+		this.manualRender();
+	}
 
 	return true;
 }
