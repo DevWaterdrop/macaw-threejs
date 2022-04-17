@@ -38,7 +38,6 @@ export class MacawScroll {
 		/* scrollTimes > 1 => removes "first" animation if scroll position > 0,
 				cannot be seen in the generator because all scroll animation by default are disabled */
 		if (this.scrollTimes > 1) {
-			// TODO Find better approach (without if)
 			this.scrollSpeed.speed =
 				Math.min(Math.abs(this.currentScroll - this.scrollSpeed.render), 200) / 200;
 
@@ -60,24 +59,19 @@ export class MacawScroll {
 
 		if (this.scene.settings.type === SCENE_TYPE.fixed) {
 			this.scene.coreOBJ.camera.position.setY(-this.currentScroll);
-			//? Currently removed for better performance, it seems there is no need, and there are no bugs
-			//? UPDATE: Bugs on resize, WIP to remove it
-			// TODO performance => need to remove
-			this.scene.setImagesPosition();
 		}
 
 		this.scene.storageOBJ.mapEffects.forEach((effect) => {
 			if (effect.scroll) effect.scroll();
 		});
 
-		if (!this.scene.shouldRender() && this.scene.settings.type === SCENE_TYPE.fixed) {
+		/* this.scrollTimes <= 2 => Sometimes wrong dimension of scene container, 
+				this may help to avoid that. */
+		if (this.scrollTimes <= 2) {
+			this.scene.macawOBJ.resize.resize();
+		} else {
 			this.scene.manualRender();
 		}
-
-		// TODO Remove?
-		// if (!this.scene.shouldRender()) {
-		// 	this.scene.manualRender();
-		// }
 	}
 
 	setupScroll() {
