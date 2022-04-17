@@ -8,25 +8,35 @@ const terserOptions = {
 	format: { comments: false }
 };
 
+const plugins = [
+	typescript(),
+	pluginNodeResolve({
+		browser: false
+	}),
+	terser(terserOptions)
+];
+
+const output = {
+	dir: "build",
+	format: "es",
+	preserveModules: true
+};
+
 const deleteBuildFolder = {
 	input: "empty_input.js",
 	plugins: [del({ targets: "build" })]
 };
 
-const core = {
-	input: "src/index.ts",
-	output: {
-		dir: "build",
-		format: "es",
-		preserveModules: true
-	},
-	plugins: [
-		typescript(),
-		pluginNodeResolve({
-			browser: false
-		}),
-		terser(terserOptions)
-	]
+const effects = {
+	input: "src/effects/index.ts",
+	output,
+	plugins
 };
 
-export default [deleteBuildFolder, core];
+const core = {
+	input: "src/index.ts",
+	output,
+	plugins
+};
+
+export default [deleteBuildFolder, effects, core];
