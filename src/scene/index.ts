@@ -28,8 +28,8 @@ interface Props {
 }
 
 export type SceneSettings = {
-	alpha: boolean;
-	color: number;
+	alpha?: boolean;
+	color?: number;
 	maxDPR?: number;
 	type?: SCENE_TYPE;
 };
@@ -104,8 +104,14 @@ export class MacawScene {
 	constructor(options: Props) {
 		const { container, sceneSettings } = options;
 
+		const type = Object.keys(SCENE_TYPE).includes(container.style.position)
+			? (container.style.position as SCENE_TYPE)
+			: SCENE_TYPE.absolute;
+
 		this.settings = {
-			type: SCENE_TYPE.absolute,
+			alpha: true,
+			color: 0xffffff,
+			type,
 			maxDPR: SCENE_DEFAULTS.maxDPR,
 			...sceneSettings
 		};
