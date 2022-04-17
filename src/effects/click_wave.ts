@@ -1,6 +1,5 @@
 import anime from "animejs";
 import { SCENE_TYPE } from "../constants";
-import type { FragmentString, Uniform, VertexString } from "../effect";
 import { Effect } from "../effect";
 import type { MacawImage } from "../image";
 
@@ -9,12 +8,6 @@ type Settings = {
 };
 
 export class ClickWave extends Effect {
-	declare settings: Settings;
-
-	readonly imageFragmentString: FragmentString;
-	readonly imageVertexString: VertexString;
-	readonly imageUniforms: Uniform;
-
 	constructor(options: Settings) {
 		super();
 

@@ -3,23 +3,23 @@ import type { MacawImage } from "./image";
 import type { MacawScene } from "./scene";
 
 export abstract class Effect {
-	scene?: MacawScene;
-	isUsingShaderPass?: boolean;
-	settings?: Record<string, unknown>;
-	type?: Set<SCENE_TYPE>;
+	declare scene?: MacawScene;
+	declare isUsingShaderPass?: boolean;
+	declare settings?: Record<string, unknown>;
+	declare type?: Set<SCENE_TYPE>;
 
 	//* Image
-	readonly imageFragmentString?: FragmentString;
-	readonly imageVertexString?: VertexString;
-	readonly imageUniforms?: Uniform;
+	declare imageFragmentString?: FragmentString;
+	declare imageVertexString?: VertexString;
+	declare imageUniforms?: Uniform;
 
 	setImageUniforms?(img: MacawImage): void | unknown;
 	//* -- end of Image
 
 	//* Composer
-	readonly composerFragmentString?: FragmentString;
-	readonly composerVertexString?: VertexString;
-	readonly composerUniforms?: Uniform;
+	declare composerFragmentString?: FragmentString;
+	declare composerVertexString?: VertexString;
+	declare composerUniforms?: Uniform;
 
 	setComposerUniforms?(): void | unknown;
 	//* -- end of Composer

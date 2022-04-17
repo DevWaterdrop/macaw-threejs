@@ -1,10 +1,7 @@
 import { SCENE_TYPE } from "../constants";
-import type { FragmentString } from "../effect";
 import { Effect } from "../effect";
 
 export class ScrollWrapUnder extends Effect {
-	readonly composerFragmentString: FragmentString;
-
 	constructor() {
 		super();
 
