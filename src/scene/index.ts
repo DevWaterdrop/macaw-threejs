@@ -104,8 +104,9 @@ export class MacawScene {
 	constructor(options: Props) {
 		const { container, sceneSettings } = options;
 
-		const type = Object.keys(SCENE_TYPE).includes(container.style.position)
-			? (container.style.position as SCENE_TYPE)
+		const { position } = window.getComputedStyle(container);
+		const type = Object.keys(SCENE_TYPE).includes(position)
+			? (position as SCENE_TYPE)
 			: SCENE_TYPE.absolute;
 
 		this.settings = {
