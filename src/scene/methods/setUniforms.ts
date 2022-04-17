@@ -9,12 +9,12 @@ export function setUniforms(this: MacawScene, props: SetUniformsProps) {
 	const { image = false, shaderPass = false } = props;
 
 	if (image) {
-		this.storageOBJ.mapMeshImages.forEach((img) => {
+		this.storage.mapMeshImages.forEach((img) => {
 			img.setUniforms();
 		});
 	}
 
 	if (shaderPass) {
-		this.macawOBJ.composer.shaderPass.uniforms.u_time.value = this.time;
+		this.macaws.composer.shaderPass.uniforms.u_time.value = this.time;
 	}
 }

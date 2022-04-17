@@ -5,23 +5,23 @@ interface Props {
 }
 
 export class MacawObserver {
-	scene: MacawScene;
 	instance: IntersectionObserver;
+	private _scene: MacawScene;
 
 	constructor(options: Props) {
 		const { scene } = options;
 
-		this.scene = scene;
-		this.instance = new IntersectionObserver(this.callback.bind(this));
+		this._scene = scene;
+		this.instance = new IntersectionObserver(this._callback.bind(this));
 	}
 
 	cleanUp() {
 		this.instance.disconnect();
 	}
 
-	private callback(entries: IntersectionObserverEntry[]) {
+	private _callback(entries: IntersectionObserverEntry[]) {
 		entries.forEach((entry) => {
-			const img = this.scene.storageOBJ.mapMeshImages.get(entry.target.id);
+			const img = this._scene.storage.mapMeshImages.get(entry.target.id);
 
 			if (!img) {
 				console.warn("Did you add image to the scene via Image(setter)?");

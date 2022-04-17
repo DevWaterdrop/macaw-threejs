@@ -15,19 +15,19 @@ export class MacawImage {
 	material?: THREE.ShaderMaterial;
 	texture?: THREE.Texture;
 
-	private scene: MacawScene;
-	private id: string;
+	private _scene: MacawScene;
+	private _id: string;
 
 	constructor(options: Props) {
 		const { element, scene, id } = options;
 
-		this.scene = scene;
+		this._scene = scene;
 		this.element = element;
-		this.id = id;
+		this._id = id;
 	}
 
 	cleanUp() {
-		this.element.removeEventListener("click", this.clickEvent.bind(this));
+		this.element.removeEventListener("click", this._clickEvent.bind(this));
 	}
 
 	setPosition(resize = false) {
@@ -46,15 +46,15 @@ export class MacawImage {
 
 		this.mesh.scale.set(width, height, 1);
 
-		const { macawOBJ, coreOBJ } = this.scene;
+		const { macaws, core } = this._scene;
 
-		this.mesh.position.y = this.calculateMeshPositionY(
-			macawOBJ.scroll.currentScroll,
-			coreOBJ.dimensions.height,
+		this.mesh.position.y = this._calculateMeshPositionY(
+			macaws.scroll.currentScroll,
+			core.dimensions.height,
 			top,
 			height
 		);
-		this.mesh.position.x = this.calculateMeshPositionX(left, width, coreOBJ.dimensions.width);
+		this.mesh.position.x = this._calculateMeshPositionX(left, width, core.dimensions.width);
 
 		this.mesh.updateMatrix();
 	}
@@ -63,9 +63,9 @@ export class MacawImage {
 		if (!this.mesh) throw new Error("Unable to refresh material, mesh is undefined");
 
 		const shaderMaterial = new THREE.ShaderMaterial({
-			uniforms: { ...additionalUniforms, ...this.scene.imageOBJ.shader.uniforms },
-			fragmentShader: this.scene.imageOBJ.shader.fragmentShader,
-			vertexShader: this.scene.imageOBJ.shader.vertexShader
+			uniforms: { ...additionalUniforms, ...this._scene.image.shader.uniforms },
+			fragmentShader: this._scene.image.shader.fragmentShader,
+			vertexShader: this._scene.image.shader.vertexShader
 		});
 
 		const newMaterial = shaderMaterial.clone();
@@ -84,9 +84,9 @@ export class MacawImage {
 
 	setUniforms() {
 		if (!this.material) throw new Error("Unable to set uniforms, material in undefined");
-		this.material.uniforms.u_time.value = this.scene.time;
+		this.material.uniforms.u_time.value = this._scene.time;
 
-		this.scene.storageOBJ.mapEffects.forEach((effect) => {
+		this._scene.storage.mapEffects.forEach((effect) => {
 			if (effect.setImageUniforms) {
 				effect.setImageUniforms(this);
 			}
@@ -98,18 +98,18 @@ export class MacawImage {
 
 		this.texture = await new THREE.TextureLoader().loadAsync(this.element.src);
 
-		const material = this.scene.imageOBJ.baseMaterial.clone();
+		const material = this._scene.image.baseMaterial.clone();
 		material.uniforms.u_image.value = this.texture;
 
 		const mesh = new THREE.Mesh(geometry, material);
 
 		// Events
-		this.element.addEventListener("click", this.clickEvent.bind(this));
+		this.element.addEventListener("click", this._clickEvent.bind(this));
 		// --- end of Events
 
 		mesh.matrixAutoUpdate = false;
 
-		this.element.id = this.element.id || `threejs_img_${this.id}`;
+		this.element.id = this.element.id || `threejs_img_${this._id}`;
 
 		this.mesh = mesh;
 		this.material = material;
@@ -117,30 +117,25 @@ export class MacawImage {
 		// ? Currently removed, may cause bugs. Investigations are underway!
 		// this.setPosition();
 
-		this.scene.macawOBJ.observer.instance.observe(this.element);
-		this.scene.coreOBJ.scene.add(mesh);
+		this._scene.macaws.observer.instance.observe(this.element);
+		this._scene.core.scene.add(mesh);
 	}
 
-	private clickEvent(event: MouseEvent) {
-		this.scene.utilsOBJ.vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
-		this.scene.utilsOBJ.vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
+	private _clickEvent(event: MouseEvent) {
+		this._scene.utils.vector2.setX((event.clientX / window.innerWidth) * 2 - 1);
+		this._scene.utils.vector2.setY(-(event.clientY / window.innerHeight) * 2 + 1);
 
-		this.scene.coreOBJ.raycaster.setFromCamera(
-			this.scene.utilsOBJ.vector2,
-			this.scene.coreOBJ.camera
-		);
-		const intersects = this.scene.coreOBJ.raycaster.intersectObjects(
-			this.scene.coreOBJ.scene.children
-		);
+		this._scene.core.raycaster.setFromCamera(this._scene.utils.vector2, this._scene.core.camera);
+		const intersects = this._scene.core.raycaster.intersectObjects(this._scene.core.scene.children);
 
-		this.scene.storageOBJ.mapEffects.forEach((effect) => {
+		this._scene.storage.mapEffects.forEach((effect) => {
 			new Promise(() => {
 				if (effect.click) effect.click(this.element.id, intersects);
 			});
 		});
 	}
 
-	private calculateMeshPositionY(
+	private _calculateMeshPositionY(
 		currentScroll: number,
 		dimensionHeight: number,
 		elementTop: number,
@@ -150,7 +145,7 @@ export class MacawImage {
 		return calculation;
 	}
 
-	private calculateMeshPositionX(
+	private _calculateMeshPositionX(
 		elementLeft: number,
 		elementWidth: number,
 		dimensionWidth: number

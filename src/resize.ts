@@ -7,45 +7,45 @@ interface Props {
 }
 
 export class MacawResize {
-	private scene: MacawScene;
+	private _scene: MacawScene;
 
 	constructor(options: Props) {
 		const { scene } = options;
 
-		this.scene = scene;
+		this._scene = scene;
 	}
 
 	resize() {
-		this.scene.coreOBJ.dimensions = {
-			width: this.scene.coreOBJ.container.offsetWidth,
-			height: this.scene.coreOBJ.container.offsetHeight
+		this._scene.core.dimensions = {
+			width: this._scene.core.container.offsetWidth,
+			height: this._scene.core.container.offsetHeight
 		};
 
-		this.scene.coreOBJ.camera.aspect =
-			this.scene.coreOBJ.dimensions.width / this.scene.coreOBJ.dimensions.height;
-		this.scene.coreOBJ.camera.fov = calculateCameraFov(
-			this.scene.coreOBJ.dimensions.height,
+		this._scene.core.camera.aspect =
+			this._scene.core.dimensions.width / this._scene.core.dimensions.height;
+		this._scene.core.camera.fov = calculateCameraFov(
+			this._scene.core.dimensions.height,
 			SCENE_DEFAULTS.positionZ
 		);
-		this.scene.coreOBJ.camera.updateProjectionMatrix();
+		this._scene.core.camera.updateProjectionMatrix();
 
-		this.scene.coreOBJ.renderer.setSize(
-			this.scene.coreOBJ.dimensions.width,
-			this.scene.coreOBJ.dimensions.height
+		this._scene.core.renderer.setSize(
+			this._scene.core.dimensions.width,
+			this._scene.core.dimensions.height
 		);
-		this.scene.macawOBJ.composer.instance.setSize(
-			this.scene.coreOBJ.dimensions.width,
-			this.scene.coreOBJ.dimensions.height
+		this._scene.macaws.composer.instance.setSize(
+			this._scene.core.dimensions.width,
+			this._scene.core.dimensions.height
 		);
 
-		this.scene.setImagesPosition({ resize: true });
+		this._scene.setImagesPosition({ resize: true });
 
-		this.scene.storageOBJ.mapEffects.forEach((effect) => {
+		this._scene.storage.mapEffects.forEach((effect) => {
 			if (effect.resize) effect.resize();
 		});
 
-		if (!this.scene.shouldRender()) {
-			this.scene.manualRender();
+		if (!this._scene.shouldRender()) {
+			this._scene.manualRender();
 		}
 	}
 

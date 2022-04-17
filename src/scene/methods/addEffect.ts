@@ -13,25 +13,25 @@ export function addEffect(this: MacawScene, props: AddEffectProps) {
 		throw new Error(`This effect doesn't support ${this.settings.type} type!`);
 	}
 
-	if (this.storageOBJ.mapEffects.has(key)) {
+	if (this.storage.mapEffects.has(key)) {
 		this.removeEffect({ key });
 		return false;
 	}
 
 	effect.scene = this;
-	this.storageOBJ.mapEffects.set(key, effect);
+	this.storage.mapEffects.set(key, effect);
 
 	if (effect.composerFragmentString !== undefined) {
 		this.CountEffectsShaderPass = 1;
 
-		this.composerOBJ.shader.create(this.storageOBJ.mapEffects);
-		this.macawOBJ.composer.refreshShaderPass(this.composerOBJ.shader, effect.composerUniforms);
+		this.composer.shader.create(this.storage.mapEffects);
+		this.macaws.composer.refreshShaderPass(this.composer.shader, effect.composerUniforms);
 	}
 	if (effect.imageFragmentString !== undefined) {
 		this.CountEffectsImage = 1;
 
-		this.imageOBJ.shader.create(this.storageOBJ.mapEffects);
-		this.storageOBJ.mapMeshImages.forEach((img) => {
+		this.image.shader.create(this.storage.mapEffects);
+		this.storage.mapMeshImages.forEach((img) => {
 			img.refreshMaterial(effect.imageUniforms);
 		});
 	}

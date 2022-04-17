@@ -1,4 +1,4 @@
-import type { RenderOBJ } from "./scene";
+import type { Render } from "./scene";
 
 export enum SCENE_TYPE {
 	fixed = "fixed",
@@ -18,7 +18,7 @@ export enum SCENE_DEFAULTS {
 	maxDPR = 1.75
 }
 
-export const RENDER_OBJ_DEFAULTS: RenderOBJ = {
+export const RENDER_OBJ_DEFAULTS: Render = {
 	isManualShouldRender: false,
 	isImage: false,
 	isShaderPass: false,

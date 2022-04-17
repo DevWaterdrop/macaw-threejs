@@ -1,13 +1,13 @@
 import type { MacawScene } from "../../scene";
 
 export function manualRender(this: MacawScene) {
-	const { isShaderPass } = this.renderOBJ;
-	const { scene, camera } = this.coreOBJ;
+	const { isShaderPass } = this.render;
+	const { scene, camera } = this.core;
 
 	// ? Maybe set uniforms only if at least one effect is enabled from previewSettings 🧐
 	this.setUniforms({ image: true, shaderPass: isShaderPass });
 
-	this.storageOBJ.mapEffects.forEach((effect) => {
+	this.storage.mapEffects.forEach((effect) => {
 		if (effect.manualRender) effect.manualRender();
 	});
 
@@ -17,8 +17,8 @@ export function manualRender(this: MacawScene) {
 		// if (scrollTimes <= 1) {
 		// 	this.coreOBJ.renderer.render(scene, camera);
 		// }
-		this.macawOBJ.composer.instance.render();
+		this.macaws.composer.instance.render();
 	} else {
-		this.coreOBJ.renderer.render(scene, camera);
+		this.core.renderer.render(scene, camera);
 	}
 }

@@ -151,22 +151,22 @@ export class MacawShader {
 			}
     `;
 
-		this.vertexShader = this.removeUndefined(preVertexShader);
-		this.fragmentShader = this.removeUndefined(preFragmentShader);
+		this.vertexShader = this._removeUndefined(preVertexShader);
+		this.fragmentShader = this._removeUndefined(preFragmentShader);
 	}
 
 	get PrettyShaders() {
-		const prettyVertex = this.prettifier(this.vertexShader);
-		const prettyFragment = this.prettifier(this.fragmentShader);
+		const prettyVertex = this._prettifier(this.vertexShader);
+		const prettyFragment = this._prettifier(this.fragmentShader);
 
 		return { prettyVertex, prettyFragment };
 	}
 
-	private removeUndefined(string: string) {
+	private _removeUndefined(string: string) {
 		return string.replace(/\bundefined\b/g, "");
 	}
 
-	private prettifier(string: string) {
+	private _prettifier(string: string) {
 		return string
 			.replace(/  +/g, "")
 			.replace(/\t/g, "")

@@ -5,8 +5,8 @@ import { RENDER_OBJ_DEFAULTS, SCENE_DEFAULTS, SCENE_TYPE } from "../constants";
 import { MacawScroll } from "../scroll";
 import {
 	initCamera,
-	initComposerOBJ,
-	initImageOBJ,
+	initComposer,
+	initImage,
 	initRaycaster,
 	initRenderer,
 	initScene
@@ -38,7 +38,7 @@ export type MapEffects = Map<string, GeneralEffect>;
 
 export type Dimensions = { width: number; height: number };
 
-export type RenderOBJ = {
+export type Render = {
 	isManualShouldRender: boolean;
 	isImage: boolean;
 	isShaderPass: boolean;
@@ -47,12 +47,12 @@ export type RenderOBJ = {
 	countEffectsImage: number;
 };
 
-export type ImageOBJ = {
+export type Image = {
 	shader: MacawImageShader;
 	baseMaterial: THREE.ShaderMaterial;
 };
 
-export type ComposerOBJ = {
+export type Composer = {
 	shader: MacawComposerShader;
 	shaderEffect: {
 		uniforms: Uniform;
@@ -63,7 +63,7 @@ export type ComposerOBJ = {
 
 type MapMeshImages = Map<string, MacawImage>;
 
-type CoreOBJ = {
+type Core = {
 	readonly container: HTMLDivElement;
 	dimensions: Dimensions;
 	scene: THREE.Scene;
@@ -72,17 +72,17 @@ type CoreOBJ = {
 	raycaster: THREE.Raycaster;
 };
 
-type UtilsOBJ = {
+type Utils = {
 	readonly vector2: THREE.Vector2;
 };
 
-type StorageOBJ = {
+type Storage = {
 	readonly mapMeshImages: MapMeshImages;
 	readonly mapEffects: Map<string, GeneralEffect>;
 	readonly images: HTMLImageElement[];
 };
 
-type MacawOBJ = {
+type Macaws = {
 	composer: MacawComposer;
 	scroll: MacawScroll;
 	resize: MacawResize;
@@ -93,13 +93,13 @@ export class MacawScene {
 	time: number;
 	settings: Required<SceneSettings>;
 
-	utilsOBJ: UtilsOBJ;
-	renderOBJ: RenderOBJ;
-	macawOBJ: MacawOBJ;
-	storageOBJ: StorageOBJ;
-	readonly coreOBJ: CoreOBJ;
-	readonly imageOBJ: ImageOBJ;
-	readonly composerOBJ: ComposerOBJ;
+	utils: Utils;
+	render: Render;
+	macaws: Macaws;
+	storage: Storage;
+	readonly core: Core;
+	readonly image: Image;
+	readonly composer: Composer;
 
 	constructor(options: Props) {
 		const { container, sceneSettings } = options;
@@ -118,22 +118,22 @@ export class MacawScene {
 		//* Default settings
 		this.time = 0;
 		// OBJs
-		this.utilsOBJ = {
+		this.utils = {
 			vector2: new THREE.Vector2()
 		};
-		this.storageOBJ = {
+		this.storage = {
 			images: [],
 			mapEffects: new Map(),
 			mapMeshImages: new Map()
 		};
-		this.renderOBJ = RENDER_OBJ_DEFAULTS;
-		this.imageOBJ = initImageOBJ();
+		this.render = RENDER_OBJ_DEFAULTS;
+		this.image = initImage();
 
 		const scroll = new MacawScroll({ scene: this });
 
-		this.composerOBJ = initComposerOBJ();
+		this.composer = initComposer();
 
-		this.coreOBJ = {
+		this.core = {
 			container,
 			dimensions,
 			scene: initScene({ settings: this.settings }),
@@ -150,10 +150,10 @@ export class MacawScene {
 		const resize = new MacawResize({ scene: this });
 		const observer = new MacawObserver({ scene: this });
 
-		this.macawOBJ = { composer, scroll, resize, observer };
+		this.macaws = { composer, scroll, resize, observer };
 		//* -- end of Default settings
 
-		this.init();
+		this._init();
 	}
 
 	addEffect = (props: AddEffectProps) => METHODS.addEffect.bind(this)(props);
@@ -174,56 +174,56 @@ export class MacawScene {
 
 	//* SETTERs
 	set Settings(sceneSettings: SceneSettings) {
-		this.renderOBJ.isManualShouldRender = false;
+		this.render.isManualShouldRender = false;
 
 		// ? Change only changed 💁‍♂️
-		this.coreOBJ.scene.background = new THREE.Color(sceneSettings.color);
+		this.core.scene.background = new THREE.Color(sceneSettings.color);
 
 		this.settings = { ...this.settings, ...sceneSettings };
 		this.manualRender();
 	}
 
 	set Image(image: MacawImage) {
-		this.storageOBJ.mapMeshImages.set(image.element.id, image);
+		this.storage.mapMeshImages.set(image.element.id, image);
 
 		this.setImagesPosition();
 		this.manualRender();
 	}
 
 	set CountEffectsShaderPass(value: number) {
-		this.renderOBJ.countEffectsShaderPass += value;
-		this.renderOBJ.isShaderPass = this.renderOBJ.countEffectsShaderPass > 0;
+		this.render.countEffectsShaderPass += value;
+		this.render.isShaderPass = this.render.countEffectsShaderPass > 0;
 	}
 
 	set CountEffectsImage(value: number) {
-		this.renderOBJ.countEffectsImage += value;
-		this.renderOBJ.isImage = this.renderOBJ.countEffectsImage > 0;
+		this.render.countEffectsImage += value;
+		this.render.isImage = this.render.countEffectsImage > 0;
 	}
 	//* -- end of SETTERs
 
 	//! Render
-	private render() {
+	private _render() {
 		this.time += SCENE_DEFAULTS.time;
 
-		if (this.renderOBJ.isShaderPass) {
-			this.macawOBJ.scroll.scrollSpeedRender();
+		if (this.render.isShaderPass) {
+			this.macaws.scroll.scrollSpeedRender();
 		}
 
 		if (this.shouldRender()) {
 			this.manualRender();
 		}
 
-		window.requestAnimationFrame(this.render.bind(this));
+		window.requestAnimationFrame(this._render.bind(this));
 	}
 
-	private init() {
-		this.macawOBJ.scroll.scroll();
-		this.macawOBJ.resize.resize();
+	private _init() {
+		this.macaws.scroll.scroll();
+		this.macaws.resize.resize();
 
-		this.macawOBJ.scroll.setupScroll();
-		this.macawOBJ.resize.setup();
+		this.macaws.scroll.setupScroll();
+		this.macaws.resize.setup();
 
-		this.render();
+		this._render();
 		this.manualRender();
 	}
 }

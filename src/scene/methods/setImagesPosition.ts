@@ -7,7 +7,7 @@ export interface SetImagesPositionProps {
 export function setImagesPosition(this: MacawScene, props: SetImagesPositionProps) {
 	const { resize = false } = props;
 
-	this.storageOBJ.mapMeshImages.forEach((img) => {
+	this.storage.mapMeshImages.forEach((img) => {
 		img.setPosition(resize);
 	});
 }

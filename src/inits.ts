@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { SCENE_DEFAULTS, SCENE_TYPE } from "./constants";
-import type { ComposerOBJ, Dimensions, ImageOBJ, SceneSettings } from "./scene";
+import type { Composer, Dimensions, Image, SceneSettings } from "./scene";
 import type { MacawScroll } from "./scroll";
 import { MacawComposerShader } from "./shaders/composerShader";
 import { MacawImageShader } from "./shaders/imageShader";
@@ -65,7 +65,7 @@ export function initRaycaster() {
 	return raycaster;
 }
 
-export function initImageOBJ(): ImageOBJ {
+export function initImage(): Image {
 	const shader = new MacawImageShader();
 	const baseMaterial = new THREE.ShaderMaterial({
 		uniforms: shader.uniforms,
@@ -76,7 +76,7 @@ export function initImageOBJ(): ImageOBJ {
 	return { shader, baseMaterial };
 }
 
-export function initComposerOBJ(): ComposerOBJ {
+export function initComposer(): Composer {
 	const shader = new MacawComposerShader();
 	const shaderEffect = {
 		uniforms: shader.uniforms,

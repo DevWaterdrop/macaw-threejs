@@ -7,22 +7,22 @@ export interface RemoveEffectProps {
 export function removeEffect(this: MacawScene, props: RemoveEffectProps) {
 	const { key } = props;
 
-	if (!this.storageOBJ.mapEffects.has(key)) return false;
+	if (!this.storage.mapEffects.has(key)) return false;
 
-	const effect = { ...this.storageOBJ.mapEffects.get(key) };
-	this.storageOBJ.mapEffects.delete(key);
+	const effect = { ...this.storage.mapEffects.get(key) };
+	this.storage.mapEffects.delete(key);
 
 	if (effect.composerFragmentString !== undefined) {
 		this.CountEffectsShaderPass = -1;
 
-		this.composerOBJ.shader.create(this.storageOBJ.mapEffects);
-		this.macawOBJ.composer.refreshShaderPass(this.composerOBJ.shader);
+		this.composer.shader.create(this.storage.mapEffects);
+		this.macaws.composer.refreshShaderPass(this.composer.shader);
 	}
 	if (effect.imageFragmentString !== undefined) {
 		this.CountEffectsImage = -1;
 
-		this.imageOBJ.shader.create(this.storageOBJ.mapEffects);
-		this.storageOBJ.mapMeshImages.forEach((img) => img.refreshMaterial());
+		this.image.shader.create(this.storage.mapEffects);
+		this.storage.mapMeshImages.forEach((img) => img.refreshMaterial());
 	}
 
 	// ? Secure, maybe redundant render.

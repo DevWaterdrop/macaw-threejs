@@ -17,12 +17,12 @@ export class MacawScroll {
 	scrollTimes: number;
 	scrollSpeed: ScrollSpeed;
 
-	private scene: MacawScene;
+	private _scene: MacawScene;
 
 	constructor(options: Props) {
 		const { scene } = options;
 
-		this.scene = scene;
+		this._scene = scene;
 
 		// Init
 		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
@@ -45,32 +45,30 @@ export class MacawScroll {
 			this.scrollSpeed.render = lerp(this.scrollSpeed.render, this.currentScroll, 0.1);
 		}
 
-		this.scene.macawOBJ.composer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
+		this._scene.macaws.composer.shaderPass.uniforms.scrollSpeed.value = this.scrollSpeed.target; // ? Maybe move to setUniforms
 
-		// TODO WIP
-		// ? Maybe make it 0.01/0.1 for performance
-		this.scene.renderOBJ.isManualShouldRender =
-			this.scene.renderOBJ.countClickRender > 0 || this.scrollSpeed.speed > 0.01;
+		this._scene.render.isManualShouldRender =
+			this._scene.render.countClickRender > 0 || this.scrollSpeed.speed > 0.01;
 	}
 
 	scroll() {
 		this.currentScroll = window.scrollY || document.documentElement.scrollTop;
 		this.scrollTimes += 1;
 
-		if (this.scene.settings.type === SCENE_TYPE.fixed) {
-			this.scene.coreOBJ.camera.position.setY(-this.currentScroll);
+		if (this._scene.settings.type === SCENE_TYPE.fixed) {
+			this._scene.core.camera.position.setY(-this.currentScroll);
 		}
 
-		this.scene.storageOBJ.mapEffects.forEach((effect) => {
+		this._scene.storage.mapEffects.forEach((effect) => {
 			if (effect.scroll) effect.scroll();
 		});
 
 		/* this.scrollTimes <= 2 => Sometimes wrong dimension of scene container, 
 				this may help to avoid that. */
 		if (this.scrollTimes <= 2) {
-			this.scene.macawOBJ.resize.resize();
+			this._scene.macaws.resize.resize();
 		} else {
-			this.scene.manualRender();
+			this._scene.manualRender();
 		}
 	}
 

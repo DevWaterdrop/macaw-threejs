@@ -9,10 +9,11 @@ type Settings = {
 };
 
 export class ClickWave extends Effect {
+	declare settings: Settings;
+
 	readonly imageFragmentString: FragmentString;
 	readonly imageVertexString: VertexString;
 	readonly imageUniforms: Uniform;
-	declare settings: Settings;
 
 	constructor(options: Settings) {
 		super();
@@ -64,7 +65,7 @@ export class ClickWave extends Effect {
 
 		this.settings = value;
 
-		this.scene.storageOBJ.mapMeshImages.forEach((img) => {
+		this.scene.storage.mapMeshImages.forEach((img) => {
 			this.setImageUniforms(img);
 		});
 	}
@@ -74,15 +75,15 @@ export class ClickWave extends Effect {
 			throw new Error(`Unable "play" click for ${this.constructor.name}, scene is undefined`);
 		}
 
-		const img = this.scene.storageOBJ.mapMeshImages.get(imageId);
+		const img = this.scene.storage.mapMeshImages.get(imageId);
 
 		if (intersects.length > 0 && img && img.material) {
 			const { material } = img;
 
 			material.uniforms.u_clickPosition.value = intersects[0].uv;
 
-			this.scene.renderOBJ.isManualShouldRender = true;
-			this.scene.renderOBJ.countClickRender += 1;
+			this.scene.render.isManualShouldRender = true;
+			this.scene.render.countClickRender += 1;
 
 			anime({
 				targets: material.uniforms.u_click,
@@ -91,10 +92,10 @@ export class ClickWave extends Effect {
 			}).finished.then(() => {
 				if (!this.scene) throw new Error(`Unable anime in ${this.constructor.name}`);
 
-				this.scene.renderOBJ.countClickRender -= 1;
+				this.scene.render.countClickRender -= 1;
 
-				if (this.scene.renderOBJ.countClickRender === 0) {
-					this.scene.renderOBJ.isManualShouldRender = false;
+				if (this.scene.render.countClickRender === 0) {
+					this.scene.render.isManualShouldRender = false;
 				}
 			});
 		}

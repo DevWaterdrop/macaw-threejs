@@ -11,26 +11,24 @@ interface Props {
 
 export class MacawComposer {
 	shaderPass: ShaderPass;
-	scene: MacawScene;
 
 	readonly instance: EffectComposer;
 	readonly renderPass: RenderPass;
 
+	private _scene: MacawScene;
+
 	constructor(options: Props) {
 		const { scene } = options;
 
-		this.scene = scene;
+		this._scene = scene;
 
-		this.instance = new EffectComposer(this.scene.coreOBJ.renderer);
-		this.instance.setSize(
-			this.scene.coreOBJ.dimensions.width,
-			this.scene.coreOBJ.dimensions.height
-		);
+		this.instance = new EffectComposer(this._scene.core.renderer);
+		this.instance.setSize(this._scene.core.dimensions.width, this._scene.core.dimensions.height);
 
-		this.renderPass = new RenderPass(this.scene.coreOBJ.scene, this.scene.coreOBJ.camera);
+		this.renderPass = new RenderPass(this._scene.core.scene, this._scene.core.camera);
 		this.instance.addPass(this.renderPass);
 
-		this.shaderPass = new ShaderPass(this.scene.composerOBJ.shaderEffect);
+		this.shaderPass = new ShaderPass(this._scene.composer.shaderEffect);
 		this.shaderPass.renderToScreen = true;
 		this.instance.addPass(this.shaderPass);
 	}
