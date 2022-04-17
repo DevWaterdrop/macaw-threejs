@@ -110,12 +110,13 @@ export class MacawImage {
 
 		mesh.matrixAutoUpdate = false;
 
-		this.element.id = this.element.id ? this.element.id : `threejs_img_${this.id}`;
+		this.element.id = this.element.id || `threejs_img_${this.id}`;
 
 		this.mesh = mesh;
 		this.material = material;
 
-		this.setPosition();
+		// ? Currently removed, may cause bugs. Investigations are underway!
+		// this.setPosition();
 
 		this.scene.macawOBJ.observer.instance.observe(this.element);
 		this.scene.coreOBJ.scene.add(mesh);
@@ -135,12 +136,9 @@ export class MacawImage {
 
 		// TODO Maybe split effects on click/scroll/etc...
 		this.scene.storageOBJ.mapEffects.forEach((effect) => {
-			if (effect.click) {
-				new Promise(() => {
-					// TODO Refactor
-					if (effect.click) effect.click(this.element.id, intersects);
-				});
-			}
+			new Promise(() => {
+				if (effect.click) effect.click(this.element.id, intersects);
+			});
 		});
 	}
 
