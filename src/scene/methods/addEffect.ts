@@ -6,7 +6,6 @@ export interface AddEffectProps {
 	effect: GeneralEffect;
 }
 
-// TODO Same code in removeEffect
 export function addEffect(this: MacawScene, props: AddEffectProps) {
 	const { key, effect } = props;
 
@@ -37,7 +36,10 @@ export function addEffect(this: MacawScene, props: AddEffectProps) {
 		});
 	}
 
-	this.manualRender(); // TODO maybe remove
+	// ? Secure, maybe redundant render.
+	if (!this.shouldRender()) {
+		this.manualRender();
+	}
 
 	return true;
 }
