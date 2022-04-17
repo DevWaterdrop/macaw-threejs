@@ -176,7 +176,7 @@ export class MacawScene {
 	set Settings(sceneSettings: SceneSettings) {
 		this.renderOBJ.isManualShouldRender = false;
 
-		// TODO Change only changed 💁‍♂️
+		// ? Change only changed 💁‍♂️
 		this.coreOBJ.scene.background = new THREE.Color(sceneSettings.color);
 
 		this.settings = { ...this.settings, ...sceneSettings };
