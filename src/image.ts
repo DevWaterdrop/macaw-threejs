@@ -119,6 +119,11 @@ export class MacawImage {
 
 		this._scene.macaws.observer.instance.observe(this.element);
 		this._scene.core.scene.add(mesh);
+
+		this._scene.storage.mapMeshImages.set(this.element.id, this);
+
+		this._scene.setImagesPosition();
+		this._scene.manualRender();
 	}
 
 	private _clickEvent(event: MouseEvent) {

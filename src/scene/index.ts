@@ -190,13 +190,6 @@ export class MacawScene {
 		this.manualRender();
 	}
 
-	set Image(image: MacawImage) {
-		this.storage.mapMeshImages.set(image.element.id, image);
-
-		this.setImagesPosition();
-		this.manualRender();
-	}
-
 	set CountEffectsShaderPass(value: number) {
 		this.render.countEffectsShaderPass += value;
 		this.render.isShaderPass = this.render.countEffectsShaderPass > 0;
