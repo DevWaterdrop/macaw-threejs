@@ -1,6 +1,6 @@
 {
 	"name": "macaw-threejs",
-	"version": "0.0.4b",
+	"version": "0.1.0",
 	"description": "",
 	"author": "DevWaterdrop",
 	"homepage": "https://github.com/DevWaterdrop/macaw-threejs#readme",
@@ -11,7 +11,7 @@
 			"import": "./build/src/index.js"
 		},
 		"./effects": {
-			"import": "./build/src/effects/index.js"
+			"import": "./build/src/@effects/index.js"
 		}
 	},
 	"typesVersions": {
@@ -20,7 +20,7 @@
 				"build/src/index.d.ts"
 			],
 			"effects": [
-				"build/src/effects/index.d.ts"
+				"build/src/@effects/index.d.ts"
 			]
 		}
 	},

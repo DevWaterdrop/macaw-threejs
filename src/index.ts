@@ -1,3 +1,3 @@
-export { MacawImage } from "./image";
-export { MacawScene } from "./scene";
+export { MacawImage } from "./Image";
+export { MacawCore } from "./Core";
 export * as CONSTANTS from "./constants";

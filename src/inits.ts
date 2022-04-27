@@ -1,9 +1,9 @@
+import type { Composer, Image } from "./controllers/Shader/Shader.types";
+import type { Dimensions, SceneSettings } from "./Core/Scene/Scene.types";
 import * as THREE from "three";
-import { SCENE_DEFAULTS, SCENE_TYPE } from "./constants";
-import type { Composer, Dimensions, Image, SceneSettings } from "./scene";
-import type { MacawScroll } from "./scroll";
-import { MacawComposerShader } from "./shaders/composerShader";
-import { MacawImageShader } from "./shaders/imageShader";
+import { SCENE_DEFAULTS } from "./constants";
+import { MacawComposerShader } from "./Core/Shader/Composer";
+import { MacawImageShader } from "./Core/Shader/Image";
 import { calculateCameraFov } from "./utils/calculate_camera_fov";
 
 interface InitSceneProps {
@@ -21,10 +21,8 @@ export function initScene({ settings }: InitSceneProps) {
 
 interface InitCameraProps {
 	dimensions: Dimensions;
-	macawScroll: MacawScroll;
-	type: SCENE_TYPE;
 }
-export function initCamera({ dimensions, macawScroll, type }: InitCameraProps) {
+export function initCamera({ dimensions }: InitCameraProps) {
 	const camera = new THREE.PerspectiveCamera(
 		SCENE_DEFAULTS.cameraFov,
 		dimensions.width / dimensions.height,
@@ -33,7 +31,7 @@ export function initCamera({ dimensions, macawScroll, type }: InitCameraProps) {
 	);
 
 	camera.position.z = SCENE_DEFAULTS.positionZ;
-	camera.position.y = type === SCENE_TYPE.absolute ? 0 : -macawScroll.currentScroll;
+	camera.position.y = 0;
 
 	camera.fov = calculateCameraFov(dimensions.height, camera.position.z);
 

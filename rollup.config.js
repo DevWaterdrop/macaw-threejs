@@ -28,7 +28,7 @@ const deleteBuildFolder = {
 };
 
 const effects = {
-	input: "src/effects/index.ts",
+	input: "src/@effects/index.ts",
 	output,
 	plugins
 };
