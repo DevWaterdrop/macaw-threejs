@@ -61,6 +61,6 @@
 	},
 	"dependencies": {
 		"animejs": "^3.2.1",
-		"three": "^0.137.5"
+		"three": "^0.140.2"
 	}
 }
