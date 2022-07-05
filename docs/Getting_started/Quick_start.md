@@ -5,12 +5,12 @@ This example provides basic setup and usage.
 ## 1. Create a scene
 
 ```javascript
-import { MacawScene } from 'macaw-threejs';
+import { MacawCore } from 'macaw-threejs';
 
-const scene = new MacawScene({ container, sceneSettings })
+const scene = new MacawCore({ container, sceneSettings })
 ```
 
-### `MacawScene` arguments
+### `MacawCore` arguments
 
 | Key | Value |
 | ------------ | ------------ |
@@ -45,10 +45,10 @@ const scene = new MacawScene({ container, sceneSettings })
 ```javascript
 import { MacawImage } from 'macaw-threejs';
 
-const img = new MacawImage({ element, scene, id }); // id – string
+const core = new MacawCore({ container, sceneSettings });
+...
 // Create method is an async function because of texture loading, need to await it.
-await img.create();
-scene.Image = img; // Finally, Set Image to scene 👏
+await new MacawImage({ element: image, core, id: 'stop war' }).create()
 ```
 
 ## 3. Add effect
@@ -61,6 +61,6 @@ import { ClickWave } from 'macaw-threejs/effects';
 const settings = { strength: 10.0 };
 const effect = new ClickWave(settings);
 
-scene.addEffect('clickWave', effect));
+scene.addEffect('clickWave', effect);
 // Returns true/false depending on if the effect was added or not.
 ```
