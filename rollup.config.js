@@ -16,6 +16,11 @@ const plugins = [
 	terser(terserOptions)
 ];
 
+const additional = {
+	treeshake: true,
+	external: ["tslib", "animejs", "three", /three\/.*/]
+};
+
 const output = {
 	dir: "build",
 	format: "es",
@@ -27,16 +32,11 @@ const deleteBuildFolder = {
 	plugins: [del({ targets: "build" })]
 };
 
-const effects = {
-	input: "src/@effects/index.ts",
-	output,
-	plugins
-};
-
 const core = {
-	input: "src/index.ts",
+	input: ["src/index.ts", "src/@effects/index.ts"],
 	output,
-	plugins
+	plugins,
+	...additional
 };
 
-export default [deleteBuildFolder, effects, core];
+export default [deleteBuildFolder, core];
